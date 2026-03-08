@@ -29,9 +29,17 @@ interface MCPResponse {
 class HealthOmicsAITroubleshooterMCPServer {
   private agent: BioinformaticsAgent | null = null;
   private knowledgeBaseManager: KnowledgeBaseManager;
+  private agentId: string | undefined;
+  private agentAliasId: string | undefined;
+  private region: string | undefined;
 
   constructor() {
     this.knowledgeBaseManager = new KnowledgeBaseManager();
+    
+    // Try to load agent configuration from environment
+    this.agentId = process.env.HEALTHOMICS_AGENT_ID;
+    this.agentAliasId = process.env.HEALTHOMICS_AGENT_ALIAS_ID || 'TSTALIASID';
+    this.region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
   }
 
   /**
@@ -97,15 +105,55 @@ class HealthOmicsAITroubleshooterMCPServer {
    * Query the bioinformatics agent
    */
   private async queryAgent(args: Record<string, any>): Promise<MCPResponse> {
-    const { query, userId = 'default-user' } = args;
+    const { query, userId = 'default-user', agentId, agentAliasId, region } = args;
 
-    if (!this.agent) {
+    // Use provided agentId or fall back to environment variable
+    const effectiveAgentId = agentId || this.agentId;
+    const effectiveAgentAliasId = agentAliasId || this.agentAliasId;
+    const effectiveRegion = region || this.region;
+
+    if (!effectiveAgentId) {
       return {
         content: [{
           type: 'text',
-          text: 'Agent not initialized. Please run setup first.'
+          text: JSON.stringify({
+            error: 'Agent ID not configured',
+            message: 'Please provide agentId parameter or set HEALTHOMICS_AGENT_ID environment variable',
+            instructions: [
+              '1. Deploy the CDK stack to get the agent ID',
+              '2. Set environment variable: export HEALTHOMICS_AGENT_ID=your-agent-id',
+              '3. Or provide agentId in the query: { "agentId": "your-agent-id", "query": "..." }'
+            ]
+          }, null, 2)
         }]
       };
+    }
+
+    // Initialize agent if not already done
+    if (!this.agent) {
+      // Create agent instance with Power clients
+      // Note: Power clients would need to be initialized here
+      // For now, we'll create a minimal agent instance
+      const { BioinformaticsAgent } = await import('./agent/BioinformaticsAgent');
+      const { PowerClient } = await import('./orchestration/PowerClient');
+      const { HealthOmicsPowerClient } = await import('./powers/HealthOmicsPowerClient');
+      const { ObservabilityPowerClient } = await import('./powers/ObservabilityPowerClient');
+      const { IAMPolicyAutopilotClient } = await import('./powers/IAMPolicyAutopilotClient');
+
+      const powerClient = new PowerClient();
+      const healthOmicsClient = new HealthOmicsPowerClient(powerClient);
+      const observabilityClient = new ObservabilityPowerClient(powerClient);
+      const iamClient = new IAMPolicyAutopilotClient(powerClient);
+
+      this.agent = new BioinformaticsAgent(
+        powerClient,
+        healthOmicsClient,
+        observabilityClient,
+        iamClient
+      );
+
+      // Initialize connection to deployed agent
+      this.agent.initializeAgentConnection(effectiveAgentId, effectiveAgentAliasId, effectiveRegion);
     }
 
     try {
@@ -174,6 +222,20 @@ class HealthOmicsAITroubleshooterMCPServer {
                 type: 'string',
                 description: 'User identifier for conversation context',
                 default: 'default-user'
+              },
+              agentId: {
+                type: 'string',
+                description: 'Agent ID from CDK deployment (optional if HEALTHOMICS_AGENT_ID env var is set)'
+              },
+              agentAliasId: {
+                type: 'string',
+                description: 'Agent alias ID (default: TSTALIASID)',
+                default: 'TSTALIASID'
+              },
+              region: {
+                type: 'string',
+                description: 'AWS region where agent is deployed (default: us-east-1)',
+                default: 'us-east-1'
               }
             },
             required: ['query']

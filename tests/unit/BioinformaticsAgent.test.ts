@@ -5,6 +5,22 @@ import type { HealthOmicsPowerClient } from '../../src/powers/HealthOmicsPowerCl
 import type { ObservabilityPowerClient } from '../../src/powers/ObservabilityPowerClient';
 import type { IAMPolicyAutopilotClient } from '../../src/powers/IAMPolicyAutopilotClient';
 
+// Mock AWS SDK
+vi.mock('@aws-sdk/client-bedrock-agent-runtime', () => ({
+  BedrockAgentRuntimeClient: vi.fn().mockImplementation(() => ({
+    send: vi.fn().mockResolvedValue({
+      completion: (async function* () {
+        yield {
+          chunk: {
+            bytes: new TextEncoder().encode('Test response from agent')
+          }
+        };
+      })()
+    })
+  })),
+  InvokeAgentCommand: vi.fn(),
+}));
+
 describe('BioinformaticsAgent', () => {
   let agent: BioinformaticsAgent;
   let mockPowerClient: PowerClient;
@@ -33,6 +49,9 @@ describe('BioinformaticsAgent', () => {
       mockObservabilityClient,
       mockIAMClient,
     );
+    
+    // Initialize agent connection for tests
+    agent.initializeAgentConnection('test-agent-id', 'TSTALIASID', 'us-east-1');
   });
 
   describe('constructor', () => {
@@ -200,7 +219,7 @@ describe('BioinformaticsAgent', () => {
     it('should process query and return response', async () => {
       const response = await agent.processQuery('Why did my workflow fail?', 'user1');
 
-      expect(response.message).toContain('Query: "Why did my workflow fail?"');
+      expect(response.message).toBe('Test response from agent');
       expect(response.conversationId).toMatch(/^conv-/);
       expect(response.traceId).toMatch(/^trace-/);
     });
@@ -209,7 +228,7 @@ describe('BioinformaticsAgent', () => {
       const response = await agent.processQuery('Test query', 'user1');
 
       expect(response.conversationId).toBeDefined();
-      expect(response.message).toContain('Query #1');
+      expect(response.conversationId).toMatch(/^conv-/);
     });
 
     it('should continue existing conversation if conversationId provided', async () => {
@@ -217,7 +236,6 @@ describe('BioinformaticsAgent', () => {
       const response2 = await agent.processQuery('Second query', 'user1', response1.conversationId);
 
       expect(response2.conversationId).toBe(response1.conversationId);
-      expect(response2.message).toContain('Query #2');
     });
 
     it('should save context after processing query', async () => {
@@ -237,10 +255,11 @@ describe('BioinformaticsAgent', () => {
       expect(context?.previousQueries).toEqual(['Query 1', 'Query 2', 'Query 3']);
     });
 
-    it('should include user ID in response message', async () => {
+    it('should return agent response from AWS Bedrock', async () => {
       const response = await agent.processQuery('Test', 'user123');
 
-      expect(response.message).toContain('User: user123');
+      expect(response.message).toBe('Test response from agent');
+      expect(response.conversationId).toBeDefined();
     });
   });
 

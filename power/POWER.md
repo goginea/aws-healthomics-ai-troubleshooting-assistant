@@ -226,17 +226,42 @@ These Powers must be installed (you'll be prompted during installation):
    - S3 buckets with lifecycle policies
    - Deployment takes 5-10 minutes
 
-4. **Verify Deployment:**
+4. **Configure Agent Connection:**
 
-   After CDK deployment completes, verify the agent is accessible:
+   After CDK deployment completes, you'll see the agent ID in the stack outputs. Configure it:
 
+   ```bash
+   # Set environment variable for the MCP server
+   export HEALTHOMICS_AGENT_ID=your-agent-id-from-cdk-output
    ```
-   "Use query_agent from healthomics-ai-troubleshooter with query: test connection"
-   ```
+
+   Or provide it directly when querying (see next step).
 
 5. **Start Using:**
-   - Ask natural language questions about your workflows
-   - The agent orchestrates existing Powers automatically
+
+   Now you can ask natural language questions! Kiro will route HealthOmics questions to your agent based on keywords.
+
+   **Simple queries** (if HEALTHOMICS_AGENT_ID is set):
+
+   ```
+   "Why did my workflow fail?"
+   "What was the reason for the last HealthOmics run failure?"
+   "Show me resource utilization for run omics-abc123"
+   ```
+
+   **Explicit queries** (if environment variable not set):
+
+   ```
+   "Use query_agent from healthomics-ai-troubleshooter with:
+   - agentId: your-agent-id
+   - query: Why did my workflow fail?"
+   ```
+
+   The agent will:
+   - Understand genomics terminology (WGS, WES, RNA-Seq, GATK, BWA-MEM2)
+   - Orchestrate calls to HealthOmics and Observability Powers
+   - Provide bioinformatics-specific recommendations
+   - Maintain conversation context across multiple questions
 
 ### Advanced: Programmatic Access
 
