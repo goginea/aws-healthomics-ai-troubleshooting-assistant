@@ -138,13 +138,13 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Implement document download and parsing
     - Support incremental sync
     - _Requirements: 18.2_
-  - [-] 6.3 Implement Confluence connector
+  - [x] 6.3 Implement Confluence connector
     - Create Confluence authentication handler (Basic, OAuth, PAT)
     - Implement space and page enumeration
     - Implement page content extraction
     - Support attachment downloads
     - _Requirements: 18.2_
-  - [ ] 6.4 Implement file system and S3 connectors
+  - [-] 6.4 Implement file system and S3 connectors
     - Create file system scanner with pattern matching
     - Implement S3 bucket enumeration and download
     - Support multiple file formats (Markdown, PDF, Word, text)

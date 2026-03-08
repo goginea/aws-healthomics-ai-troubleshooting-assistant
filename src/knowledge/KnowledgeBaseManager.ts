@@ -23,6 +23,8 @@ import {
 } from "../types";
 import { SharePointConnector } from "./connectors/SharePointConnector";
 import { ConfluenceConnector } from "./connectors/ConfluenceConnector";
+import { FileSystemConnector } from "./connectors/FileSystemConnector";
+import { S3Connector } from "./connectors/S3Connector";
 
 /**
  * Interface for managing custom knowledge bases
@@ -75,6 +77,8 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private semanticConfig?: SemanticExtractionConfig;
   private sharePointConnector: SharePointConnector;
   private confluenceConnector: ConfluenceConnector;
+  private fileSystemConnector: FileSystemConnector;
+  private s3Connector: S3Connector;
 
   constructor() {
     // Initialize with default configuration
@@ -87,6 +91,8 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     };
     this.sharePointConnector = new SharePointConnector();
     this.confluenceConnector = new ConfluenceConnector();
+    this.fileSystemConnector = new FileSystemConnector();
+    this.s3Connector = new S3Connector();
   }
 
   /**
@@ -176,21 +182,54 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.knowledgeSources.set(sourceId, source);
 
     try {
-      // Process documents (placeholder - will be implemented in subtasks)
-      const processed = documents.length;
-      const failed = 0;
+      let result: IngestionResult;
+
+      // If documents are provided directly, process them
+      if (documents && documents.length > 0) {
+        result = {
+          success: true,
+          documentsProcessed: documents.length,
+          documentsFailed: 0,
+        };
+      } else {
+        // Otherwise, route to appropriate connector based on source type
+        switch (source.type) {
+          case KnowledgeSourceType.FILE_SYSTEM:
+            if (source.configuration.fileSystem) {
+              result = await this.fileSystemConnector.syncDocuments(
+                source.configuration.fileSystem
+              );
+            } else {
+              throw new Error("File system configuration missing");
+            }
+            break;
+
+          case KnowledgeSourceType.S3_BUCKET:
+            if (source.configuration.s3) {
+              result = await this.s3Connector.syncObjects(
+                source.configuration.s3
+              );
+            } else {
+              throw new Error("S3 configuration missing");
+            }
+            break;
+
+          default:
+            result = {
+              success: true,
+              documentsProcessed: 0,
+              documentsFailed: 0,
+            };
+        }
+      }
 
       // Update source
       source.status = "ACTIVE";
-      source.documentCount += processed;
+      source.documentCount += result.documentsProcessed;
       source.lastUpdated = new Date();
       this.knowledgeSources.set(sourceId, source);
 
-      return {
-        success: true,
-        documentsProcessed: processed,
-        documentsFailed: failed,
-      };
+      return result;
     } catch (error) {
       source.status = "FAILED";
       this.knowledgeSources.set(sourceId, source);
