@@ -1,5 +1,4 @@
 // Infrastructure and deployment type definitions
-// To be implemented in Task 1
 
 export interface SystemConfiguration {
   region: string;
@@ -7,6 +6,8 @@ export interface SystemConfiguration {
   agentName: string;
   notificationPreferences: NotificationPreferences;
   environment: 'dev' | 'staging' | 'production';
+  awsAccountId?: string;
+  awsProfile?: string;
 }
 
 export interface NotificationPreferences {
@@ -30,4 +31,30 @@ export interface DeployedResource {
   status: string;
 }
 
-// Additional types to be added in Task 1
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+  remediation: string;
+}
+
+export interface ValidationWarning {
+  field: string;
+  message: string;
+}
+
+export interface ConnectivityTest {
+  healthOmicsAccess: boolean;
+  cloudWatchAccess: boolean;
+  cloudTrailAccess: boolean;
+  s3Access: boolean;
+  agentAccess: boolean;
+  bedrockAccess: boolean;
+  errors: string[];
+}
+
