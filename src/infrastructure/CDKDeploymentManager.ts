@@ -4,18 +4,12 @@
  * Manages CDK stack deployment with rollback capability (Task 8.7)
  */
 
+import type { DeploymentResult } from '../types/infrastructure';
+
 export interface ICDKDeploymentManager {
   deploy(stackName: string): Promise<DeploymentResult>;
   rollback(stackName: string): Promise<RollbackResult>;
   getDeploymentStatus(stackName: string): Promise<DeploymentStatus>;
-}
-
-export interface DeploymentResult {
-  success: boolean;
-  stackId?: string;
-  stackArn?: string;
-  outputs?: Record<string, string>;
-  errors?: string[];
 }
 
 export interface RollbackResult {
@@ -47,15 +41,19 @@ export class CDKDeploymentManager implements ICDKDeploymentManager {
       return {
         success: true,
         stackId: `stack-${stackName}`,
-        stackArn: `arn:aws:cloudformation:us-east-1:123456789012:stack/${stackName}/guid`,
-        outputs: {
-          StackName: stackName,
-          Environment: 'dev',
-        },
+        resources: [
+          {
+            type: 'AWS::CloudFormation::Stack',
+            id: stackName,
+            arn: `arn:aws:cloudformation:us-east-1:123456789012:stack/${stackName}/guid`,
+            status: 'CREATE_COMPLETE',
+          },
+        ],
       };
     } catch (error) {
       return {
         success: false,
+        resources: [],
         errors: [error instanceof Error ? error.message : String(error)],
       };
     }

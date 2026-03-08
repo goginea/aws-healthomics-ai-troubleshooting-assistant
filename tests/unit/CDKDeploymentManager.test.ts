@@ -14,7 +14,8 @@ describe('CDKDeploymentManager', () => {
 
       expect(result.success).toBe(true);
       expect(result.stackId).toBeDefined();
-      expect(result.stackArn).toBeDefined();
+      expect(result.resources).toBeDefined();
+      expect(result.resources.length).toBeGreaterThan(0);
     });
   });
 
