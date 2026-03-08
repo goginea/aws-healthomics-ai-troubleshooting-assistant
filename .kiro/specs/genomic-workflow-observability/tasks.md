@@ -281,8 +281,8 @@ This **revised implementation plan** reflects an **orchestration-first approach*
 
 ### Phase 4: Natural Language Interface and Query Processing
 
-- [ ] 11. Implement Natural Language Query Parser
-  - [ ] 11.1 Create query parser with intent classification
+- [-] 11. Implement Natural Language Query Parser
+  - [x] 11.1 Create query parser with intent classification
     - Implement QueryParser interface
     - Create regex patterns for extracting workflow run IDs (omics-_, run _, workflow \*)
     - Implement intent classification logic (GET_RUN_STATUS, ANALYZE_FAILURE, etc.)
