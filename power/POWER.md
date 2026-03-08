@@ -243,21 +243,19 @@ These Powers must be installed (you'll be prompted during installation):
 
 5. **Start Using:**
 
-   Now you can ask natural language questions! Kiro will route HealthOmics questions to your agent based on keywords.
+   Query the deployed agent using the MCP tool:
 
-   **Simple queries** (if HEALTHOMICS_AGENT_ID is set):
+   **Recommended approach** (with environment variable set):
 
    ```
-   "Why did my workflow fail?"
-   "What was the reason for the last HealthOmics run failure?"
-   "Show me resource utilization for run omics-abc123"
+   "Use query_agent from healthomics-ai-troubleshooter with query: Why did my workflow fail?"
    ```
 
-   **Explicit queries** (if environment variable not set):
+   **With explicit agent ID** (if environment variable not set):
 
    ```
    "Use query_agent from healthomics-ai-troubleshooter with:
-   - agentId: your-agent-id
+   - agentId: abcd1234
    - query: Why did my workflow fail?"
    ```
 
@@ -266,6 +264,15 @@ These Powers must be installed (you'll be prompted during installation):
    - Orchestrate calls to HealthOmics and Observability Powers
    - Provide bioinformatics-specific recommendations
    - Maintain conversation context across multiple questions
+
+   **Example queries:**
+
+   ```
+   "Use query_agent with query: Why did workflow run omics-abc123 fail?"
+   "Use query_agent with query: Show me resource utilization for my last run"
+   "Use query_agent with query: What IAM permissions are missing?"
+   "Use query_agent with query: Analyze performance of run omics-xyz789"
+   ```
 
 ### Advanced: Programmatic Access
 
