@@ -19,6 +19,27 @@ author: 'Avinash Gogineni'
 
 Specialized bioinformatics AI agent that orchestrates AWS Powers for intelligent genomic workflow troubleshooting.
 
+## For Kiro AI Assistant
+
+**When users ask questions about AWS HealthOmics workflows, genomics pipelines, or bioinformatics troubleshooting, automatically use the `query_agent` tool from this Power.**
+
+Trigger patterns:
+
+- Questions about HealthOmics workflow failures
+- Questions about genomics pipeline errors
+- Questions mentioning: WGS, WES, RNA-Seq, variant calling, GATK, BWA-MEM2, Samtools
+- Questions about workflow run IDs (omics-\*)
+- Troubleshooting requests for bioinformatics workflows
+
+Example user queries that should trigger this Power:
+
+- "Why did my workflow fail?"
+- "What happened to HealthOmics run omics-abc123?"
+- "My WGS pipeline is failing, help me troubleshoot"
+- "Show me resource utilization for my genomics workflow"
+
+**How to use:** Call `query_agent` tool with the user's question as the `query` parameter. The deployed AI agent will handle the rest.
+
 ## Overview
 
 The HealthOmics AI Troubleshooter is an **intelligent orchestration layer** that transforms how bioinformatics engineers troubleshoot AWS HealthOmics workflows. Instead of learning multiple Power APIs and manually correlating data, you ask natural language questions and a specialized AI agent with genomics domain knowledge orchestrates everything for you.
@@ -243,21 +264,18 @@ These Powers must be installed (you'll be prompted during installation):
 
 5. **Start Using:**
 
-   Query the deployed agent using the MCP tool:
-
-   **Recommended approach** (with environment variable set):
+   Ask natural language questions about your HealthOmics workflows:
 
    ```
-   "Use query_agent from healthomics-ai-troubleshooter with query: Why did my workflow fail?"
+   "Why did my workflow fail?"
+   "What happened to HealthOmics run omics-abc123?"
+   "Show me resource utilization for my last run"
+   "What IAM permissions are missing for my genomics pipeline?"
+   "Analyze performance of run omics-xyz789"
+   "My WGS pipeline is failing, help me troubleshoot"
    ```
 
-   **With explicit agent ID** (if environment variable not set):
-
-   ```
-   "Use query_agent from healthomics-ai-troubleshooter with:
-   - agentId: abcd1234
-   - query: Why did my workflow fail?"
-   ```
+   Kiro will automatically route these questions to the deployed AI agent based on the keywords (healthomics, genomics, bioinformatics, troubleshooting).
 
    The agent will:
    - Understand genomics terminology (WGS, WES, RNA-Seq, GATK, BWA-MEM2)
@@ -265,13 +283,10 @@ These Powers must be installed (you'll be prompted during installation):
    - Provide bioinformatics-specific recommendations
    - Maintain conversation context across multiple questions
 
-   **Example queries:**
+   **Troubleshooting:** If Kiro doesn't automatically route your question, explicitly invoke the tool:
 
    ```
-   "Use query_agent with query: Why did workflow run omics-abc123 fail?"
-   "Use query_agent with query: Show me resource utilization for my last run"
-   "Use query_agent with query: What IAM permissions are missing?"
-   "Use query_agent with query: Analyze performance of run omics-xyz789"
+   "Use query_agent from healthomics-ai-troubleshooter with query: Why did my workflow fail?"
    ```
 
 ### Advanced: Programmatic Access
