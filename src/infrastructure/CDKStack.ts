@@ -240,13 +240,67 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   }
 
   /**
-   * Create placeholder SNS topic (will be implemented in Task 8.4)
+   * Create SNS topic and CloudWatch alarms
    */
   private createPlaceholderTopic(): cdk.aws_sns.ITopic {
-    return cdk.aws_sns.Topic.fromTopicArn(
-      this,
-      'PlaceholderTopic',
-      'arn:aws:sns:us-east-1:123456789012:placeholder-topic'
-    );
+    // Create SNS topic for failure notifications
+    const topic = new cdk.aws_sns.Topic(this, 'FailureAlarmTopic', {
+      topicName: `${this.stackName}-FailureAlarms`,
+      displayName: 'HealthOmics Workflow Failure Notifications',
+    });
+
+    // Add email subscription if provided
+    if (this.props.notificationEmail) {
+      topic.addSubscription(
+        new cdk.aws_sns_subscriptions.EmailSubscription(
+          this.props.notificationEmail
+        )
+      );
+    }
+
+    // Create CloudWatch alarm for workflow failures
+    const failureAlarm = new cdk.aws_cloudwatch.Alarm(this, 'WorkflowFailureAlarm', {
+      alarmName: `${this.stackName}-WorkflowRunFailed`,
+      metric: new cdk.aws_cloudwatch.Metric({
+        namespace: 'AWS/Omics',
+        metricName: 'WorkflowRunFailed',
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator:
+        cdk.aws_cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cdk.aws_cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+
+    // Add SNS action to alarm
+    failureAlarm.addAlarmAction(new cdk.aws_cloudwatch_actions.SnsAction(topic));
+
+    // Create alarm for task retries
+    const retryAlarm = new cdk.aws_cloudwatch.Alarm(this, 'TaskRetryAlarm', {
+      alarmName: `${this.stackName}-HighTaskRetries`,
+      metric: new cdk.aws_cloudwatch.Metric({
+        namespace: 'AWS/Omics',
+        metricName: 'TaskRetries',
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(15),
+      }),
+      threshold: 10,
+      evaluationPeriods: 1,
+      comparisonOperator:
+        cdk.aws_cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cdk.aws_cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+
+    retryAlarm.addAlarmAction(new cdk.aws_cloudwatch_actions.SnsAction(topic));
+
+    // Output topic ARN
+    new cdk.CfnOutput(this, 'FailureAlarmTopicArn', {
+      value: topic.topicArn,
+      description: 'ARN of the SNS topic for failure notifications',
+    });
+
+    return topic;
   }
 }

@@ -204,12 +204,12 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Create Lambda execution roles for event handlers
     - Define trust relationships and assume role policies
     - _Requirements: 15.3, 14.5_
-  - [-] 8.3 Implement S3 bucket constructs
+  - [x] 8.3 Implement S3 bucket constructs
     - Create S3 bucket for manifest logs with encryption
     - Configure lifecycle policies for log retention
     - Set up bucket policies for HealthOmics access
     - _Requirements: 15.5_
-  - [ ] 8.4 Implement CloudWatch alarm constructs
+  - [x] 8.4 Implement CloudWatch alarm constructs
     - Create alarms for HealthOmics/WorkflowRunFailed metric
     - Create alarms for task retry counts
     - Configure SNS topics for alarm notifications
