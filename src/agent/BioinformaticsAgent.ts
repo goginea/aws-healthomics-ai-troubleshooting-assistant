@@ -170,10 +170,87 @@ export class BioinformaticsAgent {
   /**
    * Process a natural language query
    *
-   * This will be implemented in Task 4.4.
+   * This method:
+   * 1. Retrieves or creates conversation context
+   * 2. Processes the query (placeholder for AgentCore Runtime invocation)
+   * 3. Updates context with the query
+   * 4. Returns the agent's response
+   *
+   * @param query - Natural language query from user
+   * @param userId - User identifier
+   * @param conversationId - Optional conversation ID to continue existing conversation
+   * @returns Agent response with message and conversation ID
    */
-  async processQuery(_query: string, _userId: string): Promise<AgentResponse> {
-    throw new Error('processQuery not yet implemented - Task 4.4');
+  async processQuery(
+    query: string,
+    userId: string,
+    conversationId?: string,
+  ): Promise<AgentResponse> {
+    // Step 1: Get or create conversation context
+    let context: ConversationContext | null = null;
+
+    if (conversationId) {
+      context = await this.contextManager.retrieve(userId, conversationId);
+    }
+
+    if (!context) {
+      context = this.contextManager.createContext(userId);
+    }
+
+    // Step 2: Update context with new query
+    context = this.contextManager.updateWithQuery(context, query);
+
+    // Step 3: Process query with agent
+    // In a real implementation, this would invoke the AgentCore Runtime
+    // via the Bedrock AgentCore API. For now, we return a placeholder response.
+    //
+    // The actual implementation would:
+    // 1. Call AWS Bedrock AgentCore InvokeAgentRuntime API
+    // 2. Pass the query and conversation context
+    // 3. Stream the response back to the user
+    // 4. Extract any tool calls made by the agent
+    // 5. Return the final response with citations
+
+    const response: AgentResponse = {
+      message: this.generatePlaceholderResponse(query, context),
+      conversationId: context.conversationId,
+      traceId: `trace-${Date.now()}`,
+      citations: [],
+    };
+
+    // Step 4: Save updated context
+    await this.contextManager.save(context);
+
+    return response;
+  }
+
+  /**
+   * Generate placeholder response for development
+   *
+   * This will be replaced with actual AgentCore Runtime invocation.
+   */
+  private generatePlaceholderResponse(query: string, context: ConversationContext): string {
+    const queryCount = context.previousQueries.length;
+
+    return `[Placeholder Response - AgentCore Runtime not yet integrated]
+
+Query: "${query}"
+User: ${context.userId}
+Conversation: ${context.conversationId}
+Query #${queryCount} in this conversation
+
+This is where the AgentCore agent would:
+1. Analyze your query using genomics domain knowledge
+2. Determine which Power tools to call (DiagnoseAHORunFailure, etc.)
+3. Orchestrate multiple Power calls if needed
+4. Enhance responses with bioinformatics context
+5. Generate actionable recommendations
+
+To complete this implementation:
+- Deploy agent to AWS Bedrock AgentCore Runtime
+- Integrate with AgentCore Runtime API for query processing
+- Enable streaming responses
+- Add citation extraction from agent responses`;
   }
 
   /**

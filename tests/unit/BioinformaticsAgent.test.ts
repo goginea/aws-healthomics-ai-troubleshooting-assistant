@@ -197,10 +197,50 @@ describe('BioinformaticsAgent', () => {
   });
 
   describe('processQuery', () => {
-    it('should throw error indicating Task 4.4 not implemented', async () => {
-      await expect(agent.processQuery('test query', 'user1')).rejects.toThrow(
-        'processQuery not yet implemented - Task 4.4',
-      );
+    it('should process query and return response', async () => {
+      const response = await agent.processQuery('Why did my workflow fail?', 'user1');
+
+      expect(response.message).toContain('Query: "Why did my workflow fail?"');
+      expect(response.conversationId).toMatch(/^conv-/);
+      expect(response.traceId).toMatch(/^trace-/);
+    });
+
+    it('should create new conversation if no conversationId provided', async () => {
+      const response = await agent.processQuery('Test query', 'user1');
+
+      expect(response.conversationId).toBeDefined();
+      expect(response.message).toContain('Query #1');
+    });
+
+    it('should continue existing conversation if conversationId provided', async () => {
+      const response1 = await agent.processQuery('First query', 'user1');
+      const response2 = await agent.processQuery('Second query', 'user1', response1.conversationId);
+
+      expect(response2.conversationId).toBe(response1.conversationId);
+      expect(response2.message).toContain('Query #2');
+    });
+
+    it('should save context after processing query', async () => {
+      const response = await agent.processQuery('Test query', 'user1');
+
+      const context = await agent.getContext('user1', response.conversationId);
+      expect(context).toBeDefined();
+      expect(context?.previousQueries).toContain('Test query');
+    });
+
+    it('should track multiple queries in conversation', async () => {
+      const response1 = await agent.processQuery('Query 1', 'user1');
+      const response2 = await agent.processQuery('Query 2', 'user1', response1.conversationId);
+      const response3 = await agent.processQuery('Query 3', 'user1', response1.conversationId);
+
+      const context = await agent.getContext('user1', response1.conversationId);
+      expect(context?.previousQueries).toEqual(['Query 1', 'Query 2', 'Query 3']);
+    });
+
+    it('should include user ID in response message', async () => {
+      const response = await agent.processQuery('Test', 'user123');
+
+      expect(response.message).toContain('User: user123');
     });
   });
 
