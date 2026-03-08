@@ -126,7 +126,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
 
 ### Phase 2: Custom Knowledge Base and Memory Integration
 
-- [-] 6. Implement Custom Knowledge Base Management
+- [x] 6. Implement Custom Knowledge Base Management
   - [x] 6.1 Create knowledge base manager interface
     - Implement KnowledgeBaseManager interface
     - Create knowledge source CRUD operations
@@ -181,13 +181,13 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Support adding new documents without full re-indexing
     - Detect changed documents and update only those
     - _Requirements: 18.12_
-  - [-] 6.12 Add knowledge base metrics
+  - [x] 6.12 Add knowledge base metrics
     - Track queries using custom knowledge
     - Track knowledge source relevance scores
     - Monitor indexing performance
     - _Requirements: 18.11_
 
-- [ ] 7. Checkpoint - Phase 2 Complete
+- [x] 7. Checkpoint - Phase 2 Complete
   - Ensure all tests pass, ask the user if questions arise.
 
 ### Phase 3: Infrastructure Deployment and Setup Automation
