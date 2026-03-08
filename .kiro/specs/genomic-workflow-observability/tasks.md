@@ -199,12 +199,12 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Define stack parameters (region, environment, bucket names)
     - Implement resource tagging strategy
     - _Requirements: 15.1, 15.2, 15.7, 15.9_
-  - [-] 8.2 Implement IAM role constructs
+  - [x] 8.2 Implement IAM role constructs
     - Create AgentCore agent execution role
     - Create Lambda execution roles for event handlers
     - Define trust relationships and assume role policies
     - _Requirements: 15.3, 14.5_
-  - [ ] 8.3 Implement S3 bucket constructs
+  - [-] 8.3 Implement S3 bucket constructs
     - Create S3 bucket for manifest logs with encryption
     - Configure lifecycle policies for log retention
     - Set up bucket policies for HealthOmics access

@@ -34,6 +34,7 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   public readonly agentExecutionRole: cdk.aws_iam.IRole;
   public readonly lambdaExecutionRole: cdk.aws_iam.IRole;
   public readonly failureAlarmTopic: cdk.aws_sns.ITopic;
+  private readonly props: HealthOmicsAITroubleshooterStackProps;
 
   constructor(
     scope: Construct,
@@ -41,6 +42,7 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
     props: HealthOmicsAITroubleshooterStackProps
   ) {
     super(scope, id, props);
+    this.props = props;
 
     // Apply tags to all resources
     this.applyTags(props);
@@ -49,8 +51,10 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
     this.agentExecutionRole = this.createAgentExecutionRole();
     this.lambdaExecutionRole = this.createLambdaExecutionRole();
 
-    // Create placeholder resources (will be implemented in subtasks)
+    // Create S3 bucket
     this.manifestLogsBucket = this.createPlaceholderBucket();
+
+    // Create placeholder resources (will be implemented in subtasks)
     this.failureAlarmTopic = this.createPlaceholderTopic();
 
     // Output important values
@@ -84,14 +88,57 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   }
 
   /**
-   * Create placeholder S3 bucket (will be implemented in Task 8.3)
+   * Create S3 bucket for manifest logs
    */
   private createPlaceholderBucket(): cdk.aws_s3.IBucket {
-    return cdk.aws_s3.Bucket.fromBucketName(
-      this,
-      'PlaceholderBucket',
-      'placeholder-bucket'
+    const bucketName =
+      this.props.manifestLogsBucketName ||
+      `${this.stackName.toLowerCase()}-manifest-logs-${this.account}`;
+
+    const bucket = new cdk.aws_s3.Bucket(this, 'ManifestLogsBucket', {
+      bucketName,
+      encryption: cdk.aws_s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: cdk.aws_s3.BlockPublicAccess.BLOCK_ALL,
+      versioned: false,
+      lifecycleRules: [
+        {
+          id: 'DeleteOldLogs',
+          expiration: cdk.Duration.days(90),
+          transitions: [
+            {
+              storageClass: cdk.aws_s3.StorageClass.INTELLIGENT_TIERING,
+              transitionAfter: cdk.Duration.days(30),
+            },
+          ],
+        },
+      ],
+      removalPolicy:
+        this.props.environment === 'production'
+          ? cdk.RemovalPolicy.RETAIN
+          : cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: this.props.environment !== 'production',
+    });
+
+    // Grant HealthOmics service access
+    bucket.addToResourcePolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        principals: [new cdk.aws_iam.ServicePrincipal('omics.amazonaws.com')],
+        actions: ['s3:PutObject', 's3:PutObjectAcl'],
+        resources: [`${bucket.bucketArn}/*`],
+      })
     );
+
+    // Grant agent role read access
+    bucket.grantRead(this.agentExecutionRole);
+
+    // Output bucket name
+    new cdk.CfnOutput(this, 'ManifestLogsBucketName', {
+      value: bucket.bucketName,
+      description: 'Name of the S3 bucket for manifest logs',
+    });
+
+    return bucket;
   }
 
   /**
