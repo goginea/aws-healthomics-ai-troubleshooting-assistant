@@ -26,6 +26,7 @@ import { ConfluenceConnector } from "./connectors/ConfluenceConnector";
 import { FileSystemConnector } from "./connectors/FileSystemConnector";
 import { S3Connector } from "./connectors/S3Connector";
 import { HistoricalDataProcessor } from "./HistoricalDataProcessor";
+import { AgentCoreMemoryClient } from "./AgentCoreMemoryClient";
 
 /**
  * Interface for managing custom knowledge bases
@@ -81,6 +82,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private fileSystemConnector: FileSystemConnector;
   private s3Connector: S3Connector;
   private historicalDataProcessor: HistoricalDataProcessor;
+  private memoryClient: AgentCoreMemoryClient;
 
   constructor() {
     // Initialize with default configuration
@@ -96,6 +98,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.fileSystemConnector = new FileSystemConnector();
     this.s3Connector = new S3Connector();
     this.historicalDataProcessor = new HistoricalDataProcessor();
+    this.memoryClient = new AgentCoreMemoryClient();
   }
 
   /**
@@ -312,8 +315,8 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     query: string,
     namespace?: string
   ): Promise<KnowledgeSearchResult[]> {
-    // Placeholder - will be implemented in Task 6.8
-    throw new Error("Knowledge base search not yet implemented");
+    const namespaces = namespace ? [namespace] : undefined;
+    return await this.memoryClient.searchMemory(query, namespaces);
   }
 
   /**
@@ -364,8 +367,12 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     namespace: string,
     strategy: MemoryStrategy
   ): Promise<string> {
-    // Placeholder - will be implemented in Task 6.6
-    throw new Error("Memory namespace creation not yet implemented");
+    const namespaceId = await this.memoryClient.createNamespace(
+      namespace,
+      strategy
+    );
+    this.memoryNamespaces.set(namespace, namespaceId);
+    return namespaceId;
   }
 
   /**

@@ -149,12 +149,12 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Implement S3 bucket enumeration and download
     - Support multiple file formats (Markdown, PDF, Word, text)
     - _Requirements: 18.2_
-  - [-] 6.5 Implement historical data ingestion
+  - [x] 6.5 Implement historical data ingestion
     - Create schema for historical troubleshooting data
     - Implement data transformation and normalization
     - Store historical patterns in AgentCore Memory
     - _Requirements: 18.3_
-  - [ ] 6.6 Integrate with AgentCore Memory
+  - [-] 6.6 Integrate with AgentCore Memory
     - Use AgentCore Power's Memory management capabilities
     - Configure semantic memory strategies for custom knowledge
     - Implement memory namespace creation
