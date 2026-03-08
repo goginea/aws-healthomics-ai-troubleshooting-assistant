@@ -4,6 +4,7 @@ export * from './workflow';
 export * from './agent';
 export * from './analysis';
 export * from './infrastructure';
+export * from './knowledge';
 // Power tool types exported separately to avoid naming conflicts
 export type {
   DiagnoseRunFailureResponse,
