@@ -1,3 +1,10 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "healthomics-ai-troubleshooter": {
+      "command": "node",
+      "args": ["dist/mcp-server.js"],
+      "disabled": false,
+      "description": "HealthOmics AI Troubleshooter setup and management commands"
+    }
+  }
 }

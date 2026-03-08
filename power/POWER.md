@@ -157,20 +157,24 @@ These Powers must be installed (you'll be prompted during installation):
 1. **Install the Power:**
    - Open Kiro IDE
    - Click the Powers icon in the activity bar
-   - Search for "HealthOmics AI Troubleshooter"
-   - Click Install
+   - Click "Add Custom Power"
+   - Enter: `https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant/tree/main/power`
+   - Click Add
    - When prompted, install required dependency Powers
 
-2. **Run Setup Wizard:**
-   - After installation, the Setup Wizard will launch automatically
-   - Follow the prompts to configure:
+2. **Run Setup Command:**
+   - After installation, invoke the setup tool:
+   - In Kiro, use the command: "Run the healthomics-ai-troubleshooter setup tool"
+   - Or programmatically: Call the `setup` MCP tool from the healthomics-ai-troubleshooter server
+3. **Follow Setup Wizard:**
+   - The wizard will guide you through:
      - AWS region (e.g., us-east-1)
      - S3 bucket name for logs
      - Notification preferences
-   - The wizard will validate your AWS credentials
+   - The wizard validates your AWS credentials
 
-3. **Deploy Infrastructure (One-Click):**
-   - The wizard offers one-click CDK deployment
+4. **Deploy Infrastructure (One-Click):**
+   - Use the `deploy_infrastructure` tool or let the wizard handle it
    - This creates:
      - AgentCore bioinformatics agent
      - IAM roles and policies
@@ -179,17 +183,7 @@ These Powers must be installed (you'll be prompted during installation):
      - S3 buckets with lifecycle policies
    - Deployment takes 5-10 minutes
 
-4. **Generate IAM Policies (Automated):**
-   - The wizard offers one-click IAM policy generation
-   - Uses IAM Policy Autopilot to analyze code and generate least-privilege policies
-   - Policies are deployed automatically to the appropriate roles
-
-5. **Test Connectivity:**
-   - The wizard tests access to all required AWS services
-   - Verifies AgentCore agent is active
-   - Confirms S3 bucket access
-
-6. **Complete Setup:**
+5. **Complete Setup:**
    - Review the Quick Start guide with example queries
    - You're ready to start troubleshooting!
 
