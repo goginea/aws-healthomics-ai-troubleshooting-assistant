@@ -160,15 +160,15 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Implement memory namespace creation
     - Configure semantic extraction for organization-specific patterns
     - _Requirements: 18.4, 18.6_
-  - [-] 6.7 Implement knowledge prioritization
+  - [x] 6.7 Implement knowledge prioritization
     - Configure agent to prioritize organization-specific knowledge
     - Implement relevance scoring that favors custom knowledge
     - _Requirements: 18.7_
-  - [ ] 6.8 Create knowledge base search and validation
+  - [x] 6.8 Create knowledge base search and validation
     - Implement search interface for testing knowledge retrieval
     - Validate that custom documents are properly indexed
     - _Requirements: 18.8_
-  - [ ] 6.9 Implement knowledge base versioning
+  - [-] 6.9 Implement knowledge base versioning
     - Support knowledge base snapshots
     - Implement rollback to previous versions
     - _Requirements: 18.9_

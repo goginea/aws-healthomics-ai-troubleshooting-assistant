@@ -28,6 +28,11 @@ import { S3Connector } from "./connectors/S3Connector";
 import { HistoricalDataProcessor } from "./HistoricalDataProcessor";
 import { AgentCoreMemoryClient } from "./AgentCoreMemoryClient";
 import { KnowledgePrioritizer } from "./KnowledgePrioritizer";
+import {
+  KnowledgeBaseVersioning,
+  Snapshot,
+  RollbackResult,
+} from "./KnowledgeBaseVersioning";
 
 /**
  * Interface for managing custom knowledge bases
@@ -69,6 +74,11 @@ export interface IKnowledgeBaseManager {
   configureSemanticExtraction(
     config: SemanticExtractionConfig
   ): Promise<void>;
+
+  // Versioning
+  createSnapshot(name: string, description?: string): Promise<Snapshot>;
+  listSnapshots(): Promise<Snapshot[]>;
+  rollbackToSnapshot(snapshotId: string): Promise<RollbackResult>;
 }
 
 /**
@@ -85,6 +95,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private historicalDataProcessor: HistoricalDataProcessor;
   private memoryClient: AgentCoreMemoryClient;
   private prioritizer: KnowledgePrioritizer;
+  private versioning: KnowledgeBaseVersioning;
 
   constructor() {
     // Initialize with default configuration
@@ -102,6 +113,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.historicalDataProcessor = new HistoricalDataProcessor();
     this.memoryClient = new AgentCoreMemoryClient();
     this.prioritizer = new KnowledgePrioritizer();
+    this.versioning = new KnowledgeBaseVersioning(this.knowledgeSources);
   }
 
   /**
@@ -400,5 +412,26 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
    */
   getSemanticConfig(): SemanticExtractionConfig | undefined {
     return this.semanticConfig;
+  }
+
+  /**
+   * Create a snapshot of current knowledge base state
+   */
+  async createSnapshot(name: string, description?: string): Promise<Snapshot> {
+    return await this.versioning.createSnapshot(name, description);
+  }
+
+  /**
+   * List all snapshots
+   */
+  async listSnapshots(): Promise<Snapshot[]> {
+    return await this.versioning.listSnapshots();
+  }
+
+  /**
+   * Rollback to a previous snapshot
+   */
+  async rollbackToSnapshot(snapshotId: string): Promise<RollbackResult> {
+    return await this.versioning.rollbackToSnapshot(snapshotId);
   }
 }
