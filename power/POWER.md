@@ -138,6 +138,7 @@ Understanding what's already available helps you appreciate this Power's orchest
 **Required:**
 
 - Kiro IDE installed
+- **AWS credentials configured** (see AWS Credentials section below)
 - AWS Account with access to:
   - AWS HealthOmics
   - AWS Bedrock (for AgentCore)
@@ -146,6 +147,33 @@ Understanding what's already available helps you appreciate this Power's orchest
   - X-Ray / Application Signals
   - S3 (for manifest logs)
 - Node.js >= 18.0.0 (for development)
+
+**AWS Credentials:**
+
+Before running the setup wizard, ensure AWS credentials are configured in Kiro. You have several options:
+
+1. **AWS CLI Configuration** (Recommended):
+
+   ```bash
+   aws configure
+   ```
+
+   This creates `~/.aws/credentials` and `~/.aws/config` files that Kiro will use.
+
+2. **Environment Variables**:
+
+   ```bash
+   export AWS_ACCESS_KEY_ID="your-access-key"
+   export AWS_SECRET_ACCESS_KEY="your-secret-key"
+   export AWS_REGION="us-east-1"
+   ```
+
+3. **AWS SSO** (for Amazon employees):
+   ```bash
+   aws sso login --profile your-profile
+   ```
+
+The setup wizard will validate your credentials in the first step and guide you if they're missing or invalid.
 
 **Required Kiro Powers:**
 These Powers must be installed (you'll be prompted during installation):
@@ -168,23 +196,26 @@ These Powers must be installed (you'll be prompted during installation):
 
 2. **Run Setup (via Kiro):**
 
-   Ask Kiro to run the setup:
-
-   ```
-   "Run the HealthOmics setup wizard"
-   ```
-
-   Or use the MCP tool directly:
+   Ask Kiro to run the setup (be specific to avoid confusion with aws-healthomics Power):
 
    ```
    "Use the setup tool from healthomics-ai-troubleshooter"
    ```
 
+   Or more naturally:
+
+   ```
+   "Run setup from the HealthOmics AI Troubleshooter power"
+   ```
+
 3. **Follow Setup Wizard:**
-   - Configure AWS region (e.g., us-east-1)
-   - Configure S3 bucket name for logs
-   - Set notification preferences
-   - Wizard validates AWS credentials
+   - **Step 1: Credentials Validation** - Wizard checks for AWS credentials and guides you if missing
+   - **Step 2: Region Selection** - Configure AWS region (e.g., us-east-1)
+   - **Step 3: S3 Configuration** - Configure S3 bucket name for logs
+   - **Step 4: Notification Preferences** - Set notification preferences
+   - **Step 5: IAM Policy Generation** - Automatically generate required IAM policies
+   - **Step 6: CDK Deployment** - Deploy infrastructure
+   - **Step 7: Connectivity Test** - Validate access to all AWS services
 
 4. **Automated Deployment:**
    - Wizard automatically deploys CDK infrastructure:
@@ -222,23 +253,9 @@ await wizard.start();
 
 ### Configuration
 
-**Environment Variables (Optional):**
+Configuration is managed through the Setup Wizard. The wizard will guide you through all required settings including AWS credentials validation, region selection, S3 bucket configuration, and notification preferences.
 
-If deploying infrastructure manually (not using Setup Wizard):
-
-- `AWS_REGION` - AWS region for deployment (default: us-east-1)
-- `S3_BUCKET_NAME` - S3 bucket for manifest logs
-- `AGENT_NAME` - AgentCore agent name (default: HealthOmicsWorkflowTroubleshooter)
-
-**AWS Credentials:**
-
-The Power uses your existing AWS credentials configured in Kiro. Ensure you have:
-
-- AWS CLI configured with `aws configure`
-- Or AWS credentials in `~/.aws/credentials`
-- Or environment variables: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-
-## Common Workflows
+Manual configuration (if needed):
 
 ### Workflow 1: Check Workflow Run Status
 
