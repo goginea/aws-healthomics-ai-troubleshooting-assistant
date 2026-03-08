@@ -27,6 +27,7 @@ import { FileSystemConnector } from "./connectors/FileSystemConnector";
 import { S3Connector } from "./connectors/S3Connector";
 import { HistoricalDataProcessor } from "./HistoricalDataProcessor";
 import { AgentCoreMemoryClient } from "./AgentCoreMemoryClient";
+import { KnowledgePrioritizer } from "./KnowledgePrioritizer";
 
 /**
  * Interface for managing custom knowledge bases
@@ -83,6 +84,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private s3Connector: S3Connector;
   private historicalDataProcessor: HistoricalDataProcessor;
   private memoryClient: AgentCoreMemoryClient;
+  private prioritizer: KnowledgePrioritizer;
 
   constructor() {
     // Initialize with default configuration
@@ -99,6 +101,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.s3Connector = new S3Connector();
     this.historicalDataProcessor = new HistoricalDataProcessor();
     this.memoryClient = new AgentCoreMemoryClient();
+    this.prioritizer = new KnowledgePrioritizer();
   }
 
   /**
@@ -316,7 +319,15 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     namespace?: string
   ): Promise<KnowledgeSearchResult[]> {
     const namespaces = namespace ? [namespace] : undefined;
-    return await this.memoryClient.searchMemory(query, namespaces);
+    const results = await this.memoryClient.searchMemory(query, namespaces);
+
+    // Get custom namespaces from knowledge sources
+    const customNamespaces = Array.from(this.knowledgeSources.values())
+      .map((source) => source.namespace)
+      .filter((ns) => ns.startsWith('/org/'));
+
+    // Prioritize custom knowledge
+    return this.prioritizer.prioritizeResults(results, customNamespaces);
   }
 
   /**

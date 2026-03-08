@@ -154,13 +154,13 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Implement data transformation and normalization
     - Store historical patterns in AgentCore Memory
     - _Requirements: 18.3_
-  - [-] 6.6 Integrate with AgentCore Memory
+  - [x] 6.6 Integrate with AgentCore Memory
     - Use AgentCore Power's Memory management capabilities
     - Configure semantic memory strategies for custom knowledge
     - Implement memory namespace creation
     - Configure semantic extraction for organization-specific patterns
     - _Requirements: 18.4, 18.6_
-  - [ ] 6.7 Implement knowledge prioritization
+  - [-] 6.7 Implement knowledge prioritization
     - Configure agent to prioritize organization-specific knowledge
     - Implement relevance scoring that favors custom knowledge
     - _Requirements: 18.7_
