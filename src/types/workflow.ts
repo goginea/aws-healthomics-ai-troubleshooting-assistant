@@ -1,5 +1,4 @@
 // Workflow-related type definitions
-// To be implemented in Task 1
 
 export enum RunStatus {
   PENDING = 'PENDING',
@@ -24,4 +23,46 @@ export enum TaskStatus {
   CANCELLED = 'CANCELLED',
 }
 
-// Additional types to be added in Task 1
+export interface WorkflowRun {
+  id: string;
+  name?: string;
+  status: RunStatus;
+  workflowType: WorkflowType;
+  startTime?: Date;
+  endTime?: Date;
+  failureReason?: string;
+  parameters?: Record<string, any>;
+  outputUri?: string;
+}
+
+export interface Task {
+  taskId: string;
+  name: string;
+  status: TaskStatus;
+  startTime?: Date;
+  endTime?: Date;
+  cpus?: number;
+  memory?: number;
+  gpus?: number;
+  exitCode?: number;
+}
+
+export interface S3Location {
+  bucket: string;
+  key: string;
+  region?: string;
+}
+
+export interface LogStream {
+  logGroupName: string;
+  logStreamName: string;
+  events: LogEvent[];
+  nextToken?: string;
+}
+
+export interface LogEvent {
+  timestamp: Date;
+  message: string;
+  ingestionTime?: Date;
+}
+

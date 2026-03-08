@@ -1,5 +1,4 @@
 // AgentCore agent type definitions
-// To be implemented in Task 1
 
 export interface AgentConfiguration {
   agentName: string;
@@ -45,4 +44,29 @@ export interface MemoryStrategy {
   extractionPrompt?: string;
 }
 
-// Additional types to be added in Task 1
+export interface GuardrailConfig {
+  guardrailId: string;
+  guardrailVersion: string;
+}
+
+export interface AgentResponse {
+  message: string;
+  conversationId: string;
+  traceId?: string;
+  citations?: Citation[];
+}
+
+export interface Citation {
+  source: string;
+  content: string;
+  relevanceScore?: number;
+}
+
+export interface ConversationContext {
+  conversationId: string;
+  userId: string;
+  workflowRunId?: string;
+  previousQueries: string[];
+  timestamp: Date;
+}
+
