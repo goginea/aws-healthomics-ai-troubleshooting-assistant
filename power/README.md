@@ -9,8 +9,9 @@ This directory contains the Kiro Power distribution files.
 1. Open Kiro IDE
 2. Click the Powers icon in the activity bar
 3. Click "Add Custom Power"
-4. Enter: `https://github.com/aws-samples/aws-healthomics-ai-troubleshooting-assistant/tree/main/power`
+4. Enter: `https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant/tree/main/power`
 5. Click Add
+6. When prompted, install required dependency Powers
 
 ### From Local Directory (Development)
 
@@ -24,7 +25,7 @@ This directory contains the Kiro Power distribution files.
 ## Files
 
 - `POWER.md` - Main Power documentation with metadata, onboarding, and workflows
-- `mcp.json` - MCP server configuration (empty - uses dependency Powers' MCP servers)
+- `mcp.json` - MCP server configuration (registers the setup and management tools)
 - `README.md` - This file
 
 ## Dependencies

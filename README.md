@@ -134,8 +134,8 @@ See [SECURITY.md](SECURITY.md) for reporting security issues.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/aws-samples/aws-healthomics-ai-troubleshooting-assistant/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/aws-samples/aws-healthomics-ai-troubleshooting-assistant/discussions)
+- **Issues**: [GitHub Issues](https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant/discussions)
 
 ## Related Projects
 
