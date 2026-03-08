@@ -33,6 +33,7 @@ import {
   Snapshot,
   RollbackResult,
 } from "./KnowledgeBaseVersioning";
+import { KnowledgeBaseMetricsTracker } from "./KnowledgeBaseMetricsTracker";
 
 /**
  * Interface for managing custom knowledge bases
@@ -96,6 +97,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private memoryClient: AgentCoreMemoryClient;
   private prioritizer: KnowledgePrioritizer;
   private versioning: KnowledgeBaseVersioning;
+  private metricsTracker: KnowledgeBaseMetricsTracker;
 
   constructor() {
     // Initialize with default configuration
@@ -114,6 +116,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.memoryClient = new AgentCoreMemoryClient();
     this.prioritizer = new KnowledgePrioritizer();
     this.versioning = new KnowledgeBaseVersioning(this.knowledgeSources);
+    this.metricsTracker = new KnowledgeBaseMetricsTracker();
   }
 
   /**
@@ -339,7 +342,30 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
       .filter((ns) => ns.startsWith('/org/'));
 
     // Prioritize custom knowledge
-    return this.prioritizer.prioritizeResults(results, customNamespaces);
+    const prioritized = this.prioritizer.prioritizeResults(results, customNamespaces);
+
+    // Track metrics
+    const usedCustomKnowledge = prioritized.some((r) =>
+      customNamespaces.some((ns) => r.namespace.startsWith(ns))
+    );
+    this.metricsTracker.recordQuery(query, usedCustomKnowledge);
+
+    if (prioritized.length > 0) {
+      const avgRelevance =
+        prioritized.reduce((sum, r) => sum + r.relevanceScore, 0) /
+        prioritized.length;
+      this.metricsTracker.recordSearchResult(query, prioritized.length, avgRelevance);
+
+      // Track source relevance
+      for (const result of prioritized) {
+        this.metricsTracker.recordSourceRelevance(
+          result.source,
+          result.relevanceScore
+        );
+      }
+    }
+
+    return prioritized;
   }
 
   /**
@@ -373,13 +399,16 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
       totalDocuments += source.documentCount;
     });
 
+    // Get query metrics from tracker
+    const queryMetrics = this.metricsTracker.getQueryMetrics();
+
     return {
       totalDocuments,
       documentsBySource,
       documentsByNamespace,
       lastIndexingTime: new Date(),
-      queriesUsingCustomKnowledge: 0, // Will be tracked in Task 6.12
-      averageRelevanceScore: 0, // Will be tracked in Task 6.12
+      queriesUsingCustomKnowledge: queryMetrics.queriesUsingCustomKnowledge,
+      averageRelevanceScore: queryMetrics.averageRelevanceScore,
     };
   }
 

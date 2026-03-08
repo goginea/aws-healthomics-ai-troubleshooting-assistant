@@ -172,16 +172,16 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Support knowledge base snapshots
     - Implement rollback to previous versions
     - _Requirements: 18.9_
-  - [-] 6.10 Create knowledge base management UI
+  - [x] 6.10 Create knowledge base management UI
     - Build UI for adding/removing knowledge sources
     - Show indexing status and document counts
     - Provide search interface for testing
     - _Requirements: 18.10_
-  - [ ] 6.11 Implement incremental updates
+  - [x] 6.11 Implement incremental updates
     - Support adding new documents without full re-indexing
     - Detect changed documents and update only those
     - _Requirements: 18.12_
-  - [ ] 6.12 Add knowledge base metrics
+  - [-] 6.12 Add knowledge base metrics
     - Track queries using custom knowledge
     - Track knowledge source relevance scores
     - Monitor indexing performance
