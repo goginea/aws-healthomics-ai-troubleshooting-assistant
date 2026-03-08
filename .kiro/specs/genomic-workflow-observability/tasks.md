@@ -281,7 +281,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
 
 ### Phase 4: Natural Language Interface and Query Processing
 
-- [-] 11. Implement Natural Language Query Parser
+- [x] 11. Implement Natural Language Query Parser
   - [x] 11.1 Create query parser with intent classification
     - Implement QueryParser interface
     - Create regex patterns for extracting workflow run IDs (omics-_, run _, workflow \*)
@@ -294,7 +294,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
   - [ ]\* 11.3 Write property test for latest run identification
     - **Property 13: Latest run identification**
     - **Validates: Requirements 3.3**
-  - [ ] 11.4 Implement ambiguity detection and clarification
+  - [x] 11.4 Implement ambiguity detection and clarification
     - Detect queries that could match multiple runs or have unclear intent
     - Generate clarification prompts with specific options
     - _Requirements: 3.4_
@@ -302,18 +302,18 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - **Property 14: Ambiguity detection and clarification**
     - **Validates: Requirements 3.4**
 
-- [ ] 12. Implement Query Orchestration Logic
-  - [ ] 12.1 Create orchestration decision engine
+- [x] 12. Implement Query Orchestration Logic
+  - [x] 12.1 Create orchestration decision engine
     - Implement logic to determine which Power tools to call based on query intent
     - Map query intents to Power tool combinations
     - Handle sequential vs parallel tool invocation
     - _Requirements: 3.2, 4.1_
-  - [ ] 12.2 Implement response synthesis
+  - [x] 12.2 Implement response synthesis
     - Combine responses from multiple Power tools
     - Add genomics context to synthesized responses
     - Generate unified, coherent answers
     - _Requirements: 4.1, 13.4_
-  - [ ] 12.3 Implement caching layer
+  - [x] 12.3 Implement caching layer
     - Cache Power tool responses to improve performance
     - Implement TTL-based cache expiration
     - Add cache hit/miss metrics
@@ -322,7 +322,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - **Property: Correct Power tools called for each query intent**
     - **Validates: Requirements 3.2, 4.1**
 
-- [ ] 13. Checkpoint - Phase 4 Complete
+- [x] 13. Checkpoint - Phase 4 Complete
   - Ensure all tests pass, ask the user if questions arise.
 
 ### Phase 5: Enhanced Analysis and Recommendations
