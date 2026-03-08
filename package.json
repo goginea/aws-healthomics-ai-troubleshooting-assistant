@@ -1,6 +1,6 @@
 {
   "name": "healthomics-ai-troubleshooter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AI-assisted troubleshooting for AWS HealthOmics genomic workflows with custom knowledge base support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
