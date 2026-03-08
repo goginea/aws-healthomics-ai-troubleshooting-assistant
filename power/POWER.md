@@ -117,7 +117,7 @@ Understanding what's already available helps you appreciate this Power's orchest
 
 ## Available MCP Servers
 
-**This Power uses MCP servers from dependency Powers** (no custom MCP server):
+**This Power orchestrates existing Powers' MCP servers** (no custom MCP server required):
 
 - **aws-healthomics** (awslabs.aws-healthomics-mcp-server)
 - **aws-observability** (awslabs.cloudwatch-mcp-server, awslabs.cloudwatch-applicationsignals-mcp-server, awslabs.cloudtrail-mcp-server)
@@ -125,7 +125,7 @@ Understanding what's already available helps you appreciate this Power's orchest
 - **iam-policy-autopilot-power** (iam-policy-autopilot-mcp)
 - **aws-infrastructure-as-code** (awslabs.aws-iac-mcp-server)
 
-**Note:** These Powers must be installed separately. This Power provides the bioinformatics agent that orchestrates their tools.
+**Note:** This Power provides TypeScript/JavaScript libraries and a bioinformatics agent that orchestrates the above MCP servers. Setup is done programmatically via the npm package, not through an MCP server.
 
 ## Onboarding
 
@@ -162,20 +162,38 @@ These Powers must be installed (you'll be prompted during installation):
    - Click Add
    - When prompted, install required dependency Powers
 
-2. **Run Setup Command:**
-   - After installation, invoke the setup tool:
-   - In Kiro, use the command: "Run the healthomics-ai-troubleshooter setup tool"
-   - Or programmatically: Call the `setup` MCP tool from the healthomics-ai-troubleshooter server
-3. **Follow Setup Wizard:**
-   - The wizard will guide you through:
-     - AWS region (e.g., us-east-1)
-     - S3 bucket name for logs
-     - Notification preferences
-   - The wizard validates your AWS credentials
+2. **Install npm Package:**
 
-4. **Deploy Infrastructure (One-Click):**
-   - Use the `deploy_infrastructure` tool or let the wizard handle it
-   - This creates:
+   ```bash
+   npm install -g healthomics-ai-troubleshooter
+   ```
+
+   (Required for setup wizard and programmatic access)
+
+3. **Run Setup:**
+
+   Ask Kiro to run the setup:
+
+   ```
+   "Import SetupWizard from healthomics-ai-troubleshooter and run wizard.start()"
+   ```
+
+   Or run programmatically in your code:
+
+   ```typescript
+   import { SetupWizard } from 'healthomics-ai-troubleshooter';
+   const wizard = new SetupWizard();
+   await wizard.start();
+   ```
+
+4. **Follow Setup Wizard:**
+   - Configure AWS region (e.g., us-east-1)
+   - Configure S3 bucket name for logs
+   - Set notification preferences
+   - Wizard validates AWS credentials
+
+5. **Automated Deployment:**
+   - Wizard automatically deploys CDK infrastructure:
      - AgentCore bioinformatics agent
      - IAM roles and policies
      - CloudWatch alarms
@@ -183,9 +201,9 @@ These Powers must be installed (you'll be prompted during installation):
      - S3 buckets with lifecycle policies
    - Deployment takes 5-10 minutes
 
-5. **Complete Setup:**
-   - Review the Quick Start guide with example queries
-   - You're ready to start troubleshooting!
+6. **Start Using:**
+   - Ask natural language questions about your workflows
+   - The agent orchestrates existing Powers automatically
 
 ### Configuration
 

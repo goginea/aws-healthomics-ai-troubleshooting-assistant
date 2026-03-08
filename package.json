@@ -36,7 +36,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant.git"
+    "url": "git+https://github.com/goginea/aws-healthomics-ai-troubleshooting-assistant.git"
   },
   "dependencies": {
     "@aws-sdk/client-omics": "^3.700.0",
