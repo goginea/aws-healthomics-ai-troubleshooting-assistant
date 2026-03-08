@@ -1,5 +1,5 @@
-// Kiro Powers implementations
-// To be implemented in Phase 3
+// Kiro Powers client implementations
 
-// export * from './HealthOmicsPower';
-// export * from './ObservabilityPower';
+export * from './HealthOmicsPowerClient';
+export * from './ObservabilityPowerClient';
+export * from './IAMPolicyAutopilotClient';

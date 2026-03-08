@@ -2,7 +2,7 @@
 
 export * from './types';
 // export * from './agent';
-// export * from './powers';
+export * from './powers';
 export * from './orchestration';
 // export * from './infrastructure';
 // export * from './setup';
