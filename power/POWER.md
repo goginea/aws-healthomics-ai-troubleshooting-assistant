@@ -196,17 +196,28 @@ These Powers must be installed (you'll be prompted during installation):
 
 2. **Run Setup (via Kiro):**
 
-   Ask Kiro to run the setup (be specific to avoid confusion with aws-healthomics Power):
+   Use the single-shot setup tool (recommended):
 
    ```
-   "Use the setup tool from healthomics-ai-troubleshooter"
+   "Use the setup_complete tool from healthomics-ai-troubleshooter with region us-east-1"
    ```
 
-   Or more naturally:
+   Or with full configuration:
 
    ```
-   "Run setup from the HealthOmics AI Troubleshooter power"
+   "Use setup_complete from healthomics-ai-troubleshooter with:
+   - region: us-east-1
+   - s3BucketName: my-healthomics-logs
+   - notificationEmail: myemail@example.com"
    ```
+
+   The tool will:
+   - Validate AWS credentials
+   - Validate configuration
+   - Generate IAM policies
+   - Deploy CDK infrastructure
+   - Test connectivity
+   - Complete setup in one step
 
 3. **Follow Setup Wizard:**
    - **Step 1: Credentials Validation** - Wizard checks for AWS credentials and guides you if missing
