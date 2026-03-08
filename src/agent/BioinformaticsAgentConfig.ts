@@ -143,7 +143,7 @@ export function createAgentTools(): AgentTool[] {
         },
         required: ['run_id'],
       },
-      handler: async (input: any) => {
+      handler: async (_input: any) => {
         // Handler will be implemented in BioinformaticsAgent class
         throw new Error('Handler not implemented - will be set during agent initialization');
       },
@@ -167,7 +167,7 @@ export function createAgentTools(): AgentTool[] {
         },
         required: ['run_ids'],
       },
-      handler: async (input: any) => {
+      handler: async (_input: any) => {
         throw new Error('Handler not implemented - will be set during agent initialization');
       },
     },
@@ -184,7 +184,7 @@ export function createAgentTools(): AgentTool[] {
         },
         required: ['run_id'],
       },
-      handler: async (input: any) => {
+      handler: async (_input: any) => {
         throw new Error('Handler not implemented - will be set during agent initialization');
       },
     },
@@ -206,7 +206,7 @@ export function createAgentTools(): AgentTool[] {
         },
         required: ['service_name'],
       },
-      handler: async (input: any) => {
+      handler: async (_input: any) => {
         throw new Error('Handler not implemented - will be set during agent initialization');
       },
     },
@@ -224,7 +224,7 @@ export function createAgentTools(): AgentTool[] {
         },
         required: ['error_message'],
       },
-      handler: async (input: any) => {
+      handler: async (_input: any) => {
         throw new Error('Handler not implemented - will be set during agent initialization');
       },
     },

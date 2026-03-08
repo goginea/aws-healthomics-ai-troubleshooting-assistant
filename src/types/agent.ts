@@ -70,3 +70,10 @@ export interface ConversationContext {
   timestamp: Date;
 }
 
+export interface AgentDeployment {
+  agentId: string;
+  agentArn: string;
+  agentVersion: string;
+  status: 'CREATING' | 'ACTIVE' | 'FAILED';
+}
+
