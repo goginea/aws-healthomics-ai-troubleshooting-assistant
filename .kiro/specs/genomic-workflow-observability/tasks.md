@@ -132,13 +132,13 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Create knowledge source CRUD operations
     - Implement namespace management
     - _Requirements: 18.1, 18.5_
-  - [-] 6.2 Implement SharePoint connector
+  - [x] 6.2 Implement SharePoint connector
     - Create SharePoint authentication handler (OAuth, Service Principal)
     - Implement document library enumeration
     - Implement document download and parsing
     - Support incremental sync
     - _Requirements: 18.2_
-  - [ ] 6.3 Implement Confluence connector
+  - [-] 6.3 Implement Confluence connector
     - Create Confluence authentication handler (Basic, OAuth, PAT)
     - Implement space and page enumeration
     - Implement page content extraction
