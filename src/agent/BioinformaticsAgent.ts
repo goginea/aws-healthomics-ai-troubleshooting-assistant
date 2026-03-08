@@ -14,6 +14,7 @@ import type {
   AgentDeployment,
 } from '../types/agent';
 import { createAgentConfiguration } from './BioinformaticsAgentConfig';
+import { ContextManager } from './ContextManager';
 import type { PowerClient } from '../orchestration/PowerClient';
 import type { HealthOmicsPowerClient } from '../powers/HealthOmicsPowerClient';
 import type { ObservabilityPowerClient } from '../powers/ObservabilityPowerClient';
@@ -42,6 +43,7 @@ export class BioinformaticsAgent {
   private observabilityClient: ObservabilityPowerClient;
   private iamClient: IAMPolicyAutopilotClient;
   private deployment?: AgentDeployment;
+  private contextManager: ContextManager;
 
   constructor(
     _powerClient: PowerClient,
@@ -53,6 +55,7 @@ export class BioinformaticsAgent {
     this.healthOmicsClient = healthOmicsClient;
     this.observabilityClient = observabilityClient;
     this.iamClient = iamClient;
+    this.contextManager = new ContextManager();
 
     // Bind tool handlers to Power clients
     this.bindToolHandlers();
@@ -126,6 +129,8 @@ export class BioinformaticsAgent {
     // Update configuration with deployment-specific values
     if (deploymentConfig.memoryId && this.config.memory) {
       this.config.memory.memoryId = deploymentConfig.memoryId;
+      // Update context manager with memory ID
+      this.contextManager = new ContextManager(deploymentConfig.memoryId);
     }
 
     if (deploymentConfig.knowledgeBaseId && this.config.knowledgeBase) {
@@ -174,10 +179,61 @@ export class BioinformaticsAgent {
   /**
    * Maintain conversation context
    *
-   * This will be implemented in Task 4.3.
+   * Stores or updates conversation context for a user.
+   *
+   * @param userId - User identifier
+   * @param context - Conversation context to maintain
    */
-  maintainContext(_userId: string, _context: ConversationContext): void {
-    throw new Error('maintainContext not yet implemented - Task 4.3');
+  async maintainContext(userId: string, context: ConversationContext): Promise<void> {
+    // Validate that context belongs to the user
+    if (context.userId !== userId) {
+      throw new Error('Context userId does not match provided userId');
+    }
+
+    // Save context using context manager
+    await this.contextManager.save(context);
+  }
+
+  /**
+   * Retrieve conversation context
+   *
+   * @param userId - User identifier
+   * @param conversationId - Conversation identifier
+   * @returns Context if found, null otherwise
+   */
+  async getContext(userId: string, conversationId: string): Promise<ConversationContext | null> {
+    return await this.contextManager.retrieve(userId, conversationId);
+  }
+
+  /**
+   * List all conversations for a user
+   *
+   * @param userId - User identifier
+   * @returns Array of conversation contexts
+   */
+  async listContexts(userId: string): Promise<ConversationContext[]> {
+    return await this.contextManager.list(userId);
+  }
+
+  /**
+   * Create a new conversation context
+   *
+   * @param userId - User identifier
+   * @param workflowRunId - Optional workflow run ID
+   * @returns New conversation context
+   */
+  createNewContext(userId: string, workflowRunId?: string): ConversationContext {
+    return this.contextManager.createContext(userId, workflowRunId);
+  }
+
+  /**
+   * Delete conversation context
+   *
+   * @param userId - User identifier
+   * @param conversationId - Conversation identifier
+   */
+  async deleteContext(userId: string, conversationId: string): Promise<void> {
+    await this.contextManager.delete(userId, conversationId);
   }
 
   /**

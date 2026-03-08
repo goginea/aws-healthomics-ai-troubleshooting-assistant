@@ -205,7 +205,7 @@ describe('BioinformaticsAgent', () => {
   });
 
   describe('maintainContext', () => {
-    it('should throw error indicating Task 4.3 not implemented', () => {
+    it('should save conversation context', async () => {
       const context = {
         conversationId: 'conv1',
         userId: 'user1',
@@ -213,9 +213,79 @@ describe('BioinformaticsAgent', () => {
         timestamp: new Date(),
       };
 
-      expect(() => agent.maintainContext('user1', context)).toThrow(
-        'maintainContext not yet implemented - Task 4.3',
+      await agent.maintainContext('user1', context);
+
+      const retrieved = await agent.getContext('user1', 'conv1');
+      expect(retrieved).toEqual(context);
+    });
+
+    it('should throw error if userId mismatch', async () => {
+      const context = {
+        conversationId: 'conv1',
+        userId: 'user1',
+        previousQueries: [],
+        timestamp: new Date(),
+      };
+
+      await expect(agent.maintainContext('user2', context)).rejects.toThrow(
+        'Context userId does not match provided userId',
       );
+    });
+  });
+
+  describe('getContext', () => {
+    it('should retrieve saved context', async () => {
+      const context = agent.createNewContext('user1', 'run-123');
+      await agent.maintainContext('user1', context);
+
+      const retrieved = await agent.getContext('user1', context.conversationId);
+      expect(retrieved).toEqual(context);
+    });
+
+    it('should return null for non-existent context', async () => {
+      const retrieved = await agent.getContext('user1', 'non-existent');
+      expect(retrieved).toBeNull();
+    });
+  });
+
+  describe('listContexts', () => {
+    it('should list all contexts for a user', async () => {
+      const context1 = agent.createNewContext('user1');
+      const context2 = agent.createNewContext('user1');
+
+      await agent.maintainContext('user1', context1);
+      await agent.maintainContext('user1', context2);
+
+      const contexts = await agent.listContexts('user1');
+      expect(contexts).toHaveLength(2);
+    });
+  });
+
+  describe('createNewContext', () => {
+    it('should create new conversation context', () => {
+      const context = agent.createNewContext('user1');
+
+      expect(context.userId).toBe('user1');
+      expect(context.conversationId).toMatch(/^conv-/);
+      expect(context.previousQueries).toEqual([]);
+    });
+
+    it('should create context with workflow run ID', () => {
+      const context = agent.createNewContext('user1', 'run-123');
+
+      expect(context.workflowRunId).toBe('run-123');
+    });
+  });
+
+  describe('deleteContext', () => {
+    it('should delete conversation context', async () => {
+      const context = agent.createNewContext('user1');
+      await agent.maintainContext('user1', context);
+
+      await agent.deleteContext('user1', context.conversationId);
+
+      const retrieved = await agent.getContext('user1', context.conversationId);
+      expect(retrieved).toBeNull();
     });
   });
 });
