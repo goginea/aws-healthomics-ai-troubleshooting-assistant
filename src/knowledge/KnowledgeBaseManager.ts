@@ -21,6 +21,7 @@ import {
   SharePointConfig,
   ConfluenceConfig,
 } from "../types";
+import { SharePointConnector } from "./connectors/SharePointConnector";
 
 /**
  * Interface for managing custom knowledge bases
@@ -71,6 +72,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private knowledgeSources: Map<string, KnowledgeSource> = new Map();
   private memoryNamespaces: Map<string, string> = new Map();
   private semanticConfig?: SemanticExtractionConfig;
+  private sharePointConnector: SharePointConnector;
 
   constructor() {
     // Initialize with default configuration
@@ -81,6 +83,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
       chunkOverlap: 200,
       embeddingModel: "amazon.titan-embed-text-v2:0",
     };
+    this.sharePointConnector = new SharePointConnector();
   }
 
   /**
@@ -204,8 +207,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   async ingestFromSharePoint(
     config: SharePointConfig
   ): Promise<IngestionResult> {
-    // Placeholder - will be implemented in Task 6.2
-    throw new Error("SharePoint connector not yet implemented");
+    return await this.sharePointConnector.syncDocuments(config);
   }
 
   /**
