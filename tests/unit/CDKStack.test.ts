@@ -20,6 +20,8 @@ describe('HealthOmicsAITroubleshooterStack', () => {
       );
 
       expect(stack).toBeDefined();
+      expect(stack.agentExecutionRole).toBeDefined();
+      expect(stack.lambdaExecutionRole).toBeDefined();
     });
 
     it('should apply tags to stack', () => {
@@ -64,6 +66,8 @@ describe('HealthOmicsAITroubleshooterStack', () => {
       template.hasOutput('StackName', {});
       template.hasOutput('Environment', {});
       template.hasOutput('Region', {});
+      template.hasOutput('AgentExecutionRoleArn', {});
+      template.hasOutput('LambdaExecutionRoleArn', {});
     });
   });
 

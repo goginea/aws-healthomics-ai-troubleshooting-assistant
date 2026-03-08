@@ -193,13 +193,13 @@ This **revised implementation plan** reflects an **orchestration-first approach*
 ### Phase 3: Infrastructure Deployment and Setup Automation
 
 - [-] 8. Implement CDK Infrastructure Stack
-  - [-] 8.1 Create base CDK stack with core constructs
+  - [x] 8.1 Create base CDK stack with core constructs
     - Use AWS CDK Power for template validation
     - Create CDK app and stack structure
     - Define stack parameters (region, environment, bucket names)
     - Implement resource tagging strategy
     - _Requirements: 15.1, 15.2, 15.7, 15.9_
-  - [ ] 8.2 Implement IAM role constructs
+  - [-] 8.2 Implement IAM role constructs
     - Create AgentCore agent execution role
     - Create Lambda execution roles for event handlers
     - Define trust relationships and assume role policies

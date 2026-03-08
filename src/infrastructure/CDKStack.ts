@@ -32,6 +32,7 @@ export interface HealthOmicsAITroubleshooterStackProps extends cdk.StackProps {
 export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   public readonly manifestLogsBucket: cdk.aws_s3.IBucket;
   public readonly agentExecutionRole: cdk.aws_iam.IRole;
+  public readonly lambdaExecutionRole: cdk.aws_iam.IRole;
   public readonly failureAlarmTopic: cdk.aws_sns.ITopic;
 
   constructor(
@@ -44,9 +45,12 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
     // Apply tags to all resources
     this.applyTags(props);
 
+    // Create IAM roles
+    this.agentExecutionRole = this.createAgentExecutionRole();
+    this.lambdaExecutionRole = this.createLambdaExecutionRole();
+
     // Create placeholder resources (will be implemented in subtasks)
     this.manifestLogsBucket = this.createPlaceholderBucket();
-    this.agentExecutionRole = this.createPlaceholderRole();
     this.failureAlarmTopic = this.createPlaceholderTopic();
 
     // Output important values
@@ -91,14 +95,101 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   }
 
   /**
-   * Create placeholder IAM role (will be implemented in Task 8.2)
+   * Create AgentCore agent execution role
    */
-  private createPlaceholderRole(): cdk.aws_iam.IRole {
-    return cdk.aws_iam.Role.fromRoleName(
-      this,
-      'PlaceholderRole',
-      'placeholder-role'
+  private createAgentExecutionRole(): cdk.aws_iam.IRole {
+    const agentRole = new cdk.aws_iam.Role(this, 'AgentExecutionRole', {
+      roleName: `${this.stackName}-AgentExecutionRole`,
+      assumedBy: new cdk.aws_iam.ServicePrincipal('bedrock.amazonaws.com'),
+      description: 'Execution role for HealthOmics AI Troubleshooter agent',
+      managedPolicies: [
+        cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsReadOnlyAccess'),
+      ],
+    });
+
+    // Add inline policies for HealthOmics access
+    agentRole.addToPolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: [
+          'omics:GetRun',
+          'omics:ListRunTasks',
+          'omics:GetRunTask',
+        ],
+        resources: ['*'],
+      })
     );
+
+    // Add CloudTrail access
+    agentRole.addToPolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: ['cloudtrail:LookupEvents'],
+        resources: ['*'],
+      })
+    );
+
+    // Add X-Ray access
+    agentRole.addToPolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: [
+          'xray:GetTraceSummaries',
+          'xray:GetTraceGraph',
+        ],
+        resources: ['*'],
+      })
+    );
+
+    // Output role ARN
+    new cdk.CfnOutput(this, 'AgentExecutionRoleArn', {
+      value: agentRole.roleArn,
+      description: 'ARN of the agent execution role',
+    });
+
+    return agentRole;
+  }
+
+  /**
+   * Create Lambda execution role for event handlers
+   */
+  private createLambdaExecutionRole(): cdk.aws_iam.IRole {
+    const lambdaRole = new cdk.aws_iam.Role(this, 'LambdaExecutionRole', {
+      roleName: `${this.stackName}-LambdaExecutionRole`,
+      assumedBy: new cdk.aws_iam.ServicePrincipal('lambda.amazonaws.com'),
+      description: 'Execution role for failure detection Lambda functions',
+      managedPolicies: [
+        cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AWSLambdaBasicExecutionRole'
+        ),
+      ],
+    });
+
+    // Add HealthOmics access for failure detection
+    lambdaRole.addToPolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: ['omics:GetRun'],
+        resources: ['*'],
+      })
+    );
+
+    // Add SNS publish for notifications
+    lambdaRole.addToPolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: ['sns:Publish'],
+        resources: ['*'],
+      })
+    );
+
+    // Output role ARN
+    new cdk.CfnOutput(this, 'LambdaExecutionRoleArn', {
+      value: lambdaRole.roleArn,
+      description: 'ARN of the Lambda execution role',
+    });
+
+    return lambdaRole;
   }
 
   /**
