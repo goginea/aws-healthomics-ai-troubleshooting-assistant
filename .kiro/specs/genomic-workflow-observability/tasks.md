@@ -233,7 +233,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Deploy knowledge base as part of stack
     - _Requirements: 15.3_
 
-- [-] 9. Implement Setup Wizard
+- [x] 9. Implement Setup Wizard
   - [x] 9.1 Create wizard UI framework
     - Implement step-by-step wizard interface in Kiro IDE
     - Create navigation between setup steps
@@ -276,7 +276,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Test configuration persistence
     - _Requirements: 16.2, 16.3, 16.6, 16.7_
 
-- [ ] 10. Checkpoint - Phase 3 Complete
+- [x] 10. Checkpoint - Phase 3 Complete
   - Ensure all tests pass, ask the user if questions arise.
 
 ### Phase 4: Natural Language Interface and Query Processing
