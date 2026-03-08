@@ -43,7 +43,7 @@ export class S3Connector implements IS3Connector {
     includePatterns?: string[],
     excludePatterns?: string[]
   ): Promise<S3Object[]> {
-    const { bucket, prefix, region } = config;
+    const { bucket, prefix } = config;
     const objects: S3Object[] = [];
 
     // Placeholder for AWS SDK S3 listObjectsV2 call
@@ -76,7 +76,7 @@ export class S3Connector implements IS3Connector {
    * Download object from S3
    */
   async downloadObject(config: S3Config, key: string): Promise<Document> {
-    const { bucket, region } = config;
+    const { bucket } = config;
 
     // Get object metadata
     const headResponse = await this.callS3API('headObject', {
@@ -150,7 +150,7 @@ export class S3Connector implements IS3Connector {
   /**
    * Call S3 API (placeholder)
    */
-  private async callS3API(operation: string, params: any): Promise<any> {
+  private async callS3API(operation: string, _params: any): Promise<any> {
     // Placeholder for actual AWS SDK call
     if (operation === 'listObjectsV2') {
       return { Contents: [] };

@@ -7,7 +7,6 @@
 import {
   HistoricalTroubleshootingData,
   Document,
-  IngestionResult,
 } from '../types';
 
 export interface IHistoricalDataProcessor {

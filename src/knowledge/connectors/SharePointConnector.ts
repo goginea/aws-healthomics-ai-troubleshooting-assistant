@@ -183,7 +183,7 @@ export class SharePointConnector implements ISharePointConnector {
    * Authenticate using OAuth
    */
   private async authenticateOAuth(
-    siteUrl: string,
+    _siteUrl: string,
     credentials: Record<string, string>
   ): Promise<void> {
     const { clientId, clientSecret, tenantId } = credentials;
@@ -204,7 +204,7 @@ export class SharePointConnector implements ISharePointConnector {
    * Authenticate using Service Principal
    */
   private async authenticateServicePrincipal(
-    siteUrl: string,
+    _siteUrl: string,
     credentials: Record<string, string>
   ): Promise<void> {
     const { clientId, clientSecret, tenantId } = credentials;
@@ -238,7 +238,7 @@ export class SharePointConnector implements ISharePointConnector {
   /**
    * Call SharePoint REST API
    */
-  private async callSharePointAPI(url: string): Promise<any> {
+  private async callSharePointAPI(_url: string): Promise<any> {
     // Placeholder for actual API call
     // In real implementation, would use fetch with authorization header
     return {
@@ -249,7 +249,7 @@ export class SharePointConnector implements ISharePointConnector {
   /**
    * Download file content
    */
-  private async downloadFile(url: string): Promise<string> {
+  private async downloadFile(_url: string): Promise<string> {
     // Placeholder for actual file download
     // In real implementation, would use fetch and parse based on content type
     return 'Document content placeholder';

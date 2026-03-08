@@ -8,13 +8,12 @@
 import {
   KnowledgeSource,
   KnowledgeSourceType,
-  KnowledgeSourceConfig,
   KnowledgeSourceResult,
   Document,
   HistoricalTroubleshootingData,
   IngestionResult,
   KnowledgeSearchResult,
-  ValidationResult,
+  ValidationResult as KnowledgeValidationResult,
   KnowledgeBaseMetrics,
   MemoryStrategy,
   SemanticExtractionConfig,
@@ -64,7 +63,7 @@ export interface IKnowledgeBaseManager {
     query: string,
     namespace?: string
   ): Promise<KnowledgeSearchResult[]>;
-  validateKnowledgeBase(): Promise<ValidationResult>;
+  validateKnowledgeBase(): Promise<KnowledgeValidationResult>;
   getKnowledgeBaseMetrics(): Promise<KnowledgeBaseMetrics>;
 
   // Memory integration
@@ -308,8 +307,8 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
         data
       );
 
-      // Extract patterns for future use
-      const patterns = this.historicalDataProcessor.extractPatterns(data);
+      // Extract patterns for future use (stored but not returned)
+      this.historicalDataProcessor.extractPatterns(data);
 
       return {
         success: true,
@@ -371,7 +370,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   /**
    * Validate knowledge base integrity
    */
-  async validateKnowledgeBase(): Promise<ValidationResult> {
+  async validateKnowledgeBase(): Promise<KnowledgeValidationResult> {
     const sources = Array.from(this.knowledgeSources.values());
     const failedSources = sources.filter((s) => s.status === "FAILED");
 

@@ -27,7 +27,6 @@ export interface IKnowledgePrioritizer {
  */
 export class KnowledgePrioritizer implements IKnowledgePrioritizer {
   private readonly CUSTOM_KNOWLEDGE_BOOST = 1.5; // 50% boost for custom knowledge
-  private readonly RECENT_DOCUMENT_BOOST = 1.2; // 20% boost for recent documents
   private readonly HISTORICAL_DATA_BOOST = 1.4; // 40% boost for historical troubleshooting
 
   /**

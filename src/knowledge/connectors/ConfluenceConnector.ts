@@ -272,7 +272,7 @@ export class ConfluenceConnector implements IConfluenceConnector {
   /**
    * Call Confluence REST API
    */
-  private async callConfluenceAPI(url: string): Promise<any> {
+  private async callConfluenceAPI(_url: string): Promise<any> {
     // Placeholder for actual API call
     return {
       results: [],
@@ -282,7 +282,7 @@ export class ConfluenceConnector implements IConfluenceConnector {
   /**
    * Download file content
    */
-  private async downloadFile(url: string): Promise<string> {
+  private async downloadFile(_url: string): Promise<string> {
     // Placeholder for actual file download
     return 'Attachment content placeholder';
   }

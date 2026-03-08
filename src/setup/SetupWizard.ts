@@ -160,7 +160,7 @@ export class SetupWizard implements ISetupWizard {
    * Deploy infrastructure (placeholder)
    */
   async deployInfrastructure(
-    config: SystemConfiguration
+    _config: SystemConfiguration
   ): Promise<DeploymentResult> {
     // Placeholder - will integrate with CDKDeploymentManager
     return {
@@ -174,7 +174,7 @@ export class SetupWizard implements ISetupWizard {
    * Test connectivity (placeholder)
    */
   async testConnectivity(
-    config: SystemConfiguration
+    _config: SystemConfiguration
   ): Promise<ConnectivityTest> {
     // Placeholder - will implement actual connectivity tests
     return {

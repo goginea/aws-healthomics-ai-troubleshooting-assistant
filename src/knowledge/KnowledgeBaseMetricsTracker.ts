@@ -82,7 +82,7 @@ export class KnowledgeBaseMetricsTracker
   /**
    * Record a query
    */
-  recordQuery(query: string, usedCustomKnowledge: boolean): void {
+  recordQuery(_query: string, usedCustomKnowledge: boolean): void {
     this.queryCount++;
     if (usedCustomKnowledge) {
       this.customKnowledgeQueryCount++;
@@ -93,7 +93,7 @@ export class KnowledgeBaseMetricsTracker
    * Record search result metrics
    */
   recordSearchResult(
-    query: string,
+    _query: string,
     resultCount: number,
     averageRelevance: number
   ): void {

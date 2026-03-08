@@ -6,7 +6,6 @@
 
 import {
   KnowledgeSource,
-  KnowledgeSourceType,
   KnowledgeBaseMetrics,
   KnowledgeSearchResult,
 } from '../types';
@@ -32,7 +31,10 @@ export interface IKnowledgeBaseUI {
  * Knowledge base UI implementation
  */
 export class KnowledgeBaseUI implements IKnowledgeBaseUI {
-  constructor(private manager: IKnowledgeBaseManager) {}
+  constructor(_manager: IKnowledgeBaseManager) {
+    // Manager parameter kept for interface compatibility
+    // Will be used when implementing interactive UI features
+  }
 
   /**
    * Display list of knowledge sources
@@ -84,7 +86,7 @@ export class KnowledgeBaseUI implements IKnowledgeBaseUI {
   /**
    * Confirm source removal (placeholder)
    */
-  async confirmRemoveSource(sourceId: string): Promise<boolean> {
+  async confirmRemoveSource(_sourceId: string): Promise<boolean> {
     // In real implementation, would show confirmation dialog
     return true;
   }

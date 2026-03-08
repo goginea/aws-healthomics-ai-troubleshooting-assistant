@@ -9,7 +9,6 @@ import * as path from 'path';
 import {
   FileSystemConfig,
   Document,
-  DocumentMetadata,
   IngestionResult,
 } from '../../types';
 
