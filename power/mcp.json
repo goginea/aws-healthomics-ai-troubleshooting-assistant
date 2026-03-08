@@ -1,3 +1,9 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "healthomics-ai-troubleshooter": {
+      "command": "npx",
+      "args": ["-y", "healthomics-ai-troubleshooter"],
+      "env": {}
+    }
+  }
 }
