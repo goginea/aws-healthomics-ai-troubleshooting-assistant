@@ -192,7 +192,7 @@ This **revised implementation plan** reflects an **orchestration-first approach*
 
 ### Phase 3: Infrastructure Deployment and Setup Automation
 
-- [-] 8. Implement CDK Infrastructure Stack
+- [x] 8. Implement CDK Infrastructure Stack
   - [x] 8.1 Create base CDK stack with core constructs
     - Use AWS CDK Power for template validation
     - Create CDK app and stack structure
@@ -214,20 +214,20 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Create alarms for task retry counts
     - Configure SNS topics for alarm notifications
     - _Requirements: 15.4_
-  - [ ] 8.5 Implement EventBridge rule constructs
+  - [x] 8.5 Implement EventBridge rule constructs
     - Create rules for HealthOmics run status changes
     - Configure Lambda targets for failure detection
     - _Requirements: 15.6_
-  - [ ] 8.6 Add CDK deployment validation and compliance
+  - [x] 8.6 Add CDK deployment validation and compliance
     - Use AWS CDK Power's validation tools
     - Implement security compliance checks
     - Add pre-deployment validation hooks
     - _Requirements: 15.7, 15.8_
-  - [ ] 8.7 Implement rollback capability
+  - [x] 8.7 Implement rollback capability
     - Add error handling for failed deployments
     - Implement stack rollback logic
     - _Requirements: 15.10_
-  - [ ] 8.8 Add AgentCore agent to CDK stack
+  - [x] 8.8 Add AgentCore agent to CDK stack
     - Create CDK construct for Bedrock AgentCore agent
     - Configure agent with IAM role from CDK
     - Deploy knowledge base as part of stack

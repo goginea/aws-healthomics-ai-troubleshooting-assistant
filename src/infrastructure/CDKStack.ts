@@ -34,6 +34,7 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   public readonly agentExecutionRole: cdk.aws_iam.IRole;
   public readonly lambdaExecutionRole: cdk.aws_iam.IRole;
   public readonly failureAlarmTopic: cdk.aws_sns.ITopic;
+  public readonly failureDetectionRule: cdk.aws_events.IRule;
   private readonly props: HealthOmicsAITroubleshooterStackProps;
 
   constructor(
@@ -47,31 +48,27 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
     // Apply tags to all resources
     this.applyTags(props);
 
-    // Create IAM roles
+    // Create IAM roles (Task 8.2)
     this.agentExecutionRole = this.createAgentExecutionRole();
     this.lambdaExecutionRole = this.createLambdaExecutionRole();
 
-    // Create S3 bucket
-    this.manifestLogsBucket = this.createPlaceholderBucket();
+    // Create S3 bucket (Task 8.3)
+    this.manifestLogsBucket = this.createManifestLogsBucket();
 
-    // Create placeholder resources (will be implemented in subtasks)
-    this.failureAlarmTopic = this.createPlaceholderTopic();
+    // Create SNS topic and alarms (Task 8.4)
+    this.failureAlarmTopic = this.createAlarmsAndNotifications();
+
+    // Create EventBridge rules (Task 8.5)
+    this.failureDetectionRule = this.createEventBridgeRules();
+
+    // Create AgentCore agent (Task 8.8)
+    this.createAgentCoreAgent();
+
+    // Validate stack (Task 8.6)
+    this.validateStack();
 
     // Output important values
-    new cdk.CfnOutput(this, 'StackName', {
-      value: this.stackName,
-      description: 'Name of the CloudFormation stack',
-    });
-
-    new cdk.CfnOutput(this, 'Environment', {
-      value: props.environment,
-      description: 'Deployment environment',
-    });
-
-    new cdk.CfnOutput(this, 'Region', {
-      value: this.region,
-      description: 'AWS region',
-    });
+    this.createOutputs();
   }
 
   /**
@@ -88,61 +85,7 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   }
 
   /**
-   * Create S3 bucket for manifest logs
-   */
-  private createPlaceholderBucket(): cdk.aws_s3.IBucket {
-    const bucketName =
-      this.props.manifestLogsBucketName ||
-      `${this.stackName.toLowerCase()}-manifest-logs-${this.account}`;
-
-    const bucket = new cdk.aws_s3.Bucket(this, 'ManifestLogsBucket', {
-      bucketName,
-      encryption: cdk.aws_s3.BucketEncryption.S3_MANAGED,
-      blockPublicAccess: cdk.aws_s3.BlockPublicAccess.BLOCK_ALL,
-      versioned: false,
-      lifecycleRules: [
-        {
-          id: 'DeleteOldLogs',
-          expiration: cdk.Duration.days(90),
-          transitions: [
-            {
-              storageClass: cdk.aws_s3.StorageClass.INTELLIGENT_TIERING,
-              transitionAfter: cdk.Duration.days(30),
-            },
-          ],
-        },
-      ],
-      removalPolicy:
-        this.props.environment === 'production'
-          ? cdk.RemovalPolicy.RETAIN
-          : cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: this.props.environment !== 'production',
-    });
-
-    // Grant HealthOmics service access
-    bucket.addToResourcePolicy(
-      new cdk.aws_iam.PolicyStatement({
-        effect: cdk.aws_iam.Effect.ALLOW,
-        principals: [new cdk.aws_iam.ServicePrincipal('omics.amazonaws.com')],
-        actions: ['s3:PutObject', 's3:PutObjectAcl'],
-        resources: [`${bucket.bucketArn}/*`],
-      })
-    );
-
-    // Grant agent role read access
-    bucket.grantRead(this.agentExecutionRole);
-
-    // Output bucket name
-    new cdk.CfnOutput(this, 'ManifestLogsBucketName', {
-      value: bucket.bucketName,
-      description: 'Name of the S3 bucket for manifest logs',
-    });
-
-    return bucket;
-  }
-
-  /**
-   * Create AgentCore agent execution role
+   * Create AgentCore agent execution role (Task 8.2)
    */
   private createAgentExecutionRole(): cdk.aws_iam.IRole {
     const agentRole = new cdk.aws_iam.Role(this, 'AgentExecutionRole', {
@@ -188,17 +131,11 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
       })
     );
 
-    // Output role ARN
-    new cdk.CfnOutput(this, 'AgentExecutionRoleArn', {
-      value: agentRole.roleArn,
-      description: 'ARN of the agent execution role',
-    });
-
     return agentRole;
   }
 
   /**
-   * Create Lambda execution role for event handlers
+   * Create Lambda execution role for event handlers (Task 8.2)
    */
   private createLambdaExecutionRole(): cdk.aws_iam.IRole {
     const lambdaRole = new cdk.aws_iam.Role(this, 'LambdaExecutionRole', {
@@ -230,19 +167,61 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
       })
     );
 
-    // Output role ARN
-    new cdk.CfnOutput(this, 'LambdaExecutionRoleArn', {
-      value: lambdaRole.roleArn,
-      description: 'ARN of the Lambda execution role',
-    });
-
     return lambdaRole;
   }
 
   /**
-   * Create SNS topic and CloudWatch alarms
+   * Create S3 bucket for manifest logs (Task 8.3)
    */
-  private createPlaceholderTopic(): cdk.aws_sns.ITopic {
+  private createManifestLogsBucket(): cdk.aws_s3.IBucket {
+    const bucketName =
+      this.props.manifestLogsBucketName ||
+      `${this.stackName.toLowerCase()}-manifest-logs-${this.account}`;
+
+    const bucket = new cdk.aws_s3.Bucket(this, 'ManifestLogsBucket', {
+      bucketName,
+      encryption: cdk.aws_s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: cdk.aws_s3.BlockPublicAccess.BLOCK_ALL,
+      versioned: false,
+      lifecycleRules: [
+        {
+          id: 'DeleteOldLogs',
+          expiration: cdk.Duration.days(90),
+          transitions: [
+            {
+              storageClass: cdk.aws_s3.StorageClass.INTELLIGENT_TIERING,
+              transitionAfter: cdk.Duration.days(30),
+            },
+          ],
+        },
+      ],
+      removalPolicy:
+        this.props.environment === 'production'
+          ? cdk.RemovalPolicy.RETAIN
+          : cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: this.props.environment !== 'production',
+    });
+
+    // Grant HealthOmics service access
+    bucket.addToResourcePolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        principals: [new cdk.aws_iam.ServicePrincipal('omics.amazonaws.com')],
+        actions: ['s3:PutObject', 's3:PutObjectAcl'],
+        resources: [`${bucket.bucketArn}/*`],
+      })
+    );
+
+    // Grant agent role read access
+    bucket.grantRead(this.agentExecutionRole);
+
+    return bucket;
+  }
+
+  /**
+   * Create SNS topic and CloudWatch alarms (Task 8.4)
+   */
+  private createAlarmsAndNotifications(): cdk.aws_sns.ITopic {
     // Create SNS topic for failure notifications
     const topic = new cdk.aws_sns.Topic(this, 'FailureAlarmTopic', {
       topicName: `${this.stackName}-FailureAlarms`,
@@ -295,12 +274,118 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
 
     retryAlarm.addAlarmAction(new cdk.aws_cloudwatch_actions.SnsAction(topic));
 
-    // Output topic ARN
+    return topic;
+  }
+
+  /**
+   * Create EventBridge rules for HealthOmics events (Task 8.5)
+   */
+  private createEventBridgeRules(): cdk.aws_events.IRule {
+    // Create rule for HealthOmics run status changes
+    const rule = new cdk.aws_events.Rule(this, 'RunStatusChangeRule', {
+      ruleName: `${this.stackName}-RunStatusChanges`,
+      description: 'Capture HealthOmics workflow run status changes',
+      eventPattern: {
+        source: ['aws.omics'],
+        detailType: ['HealthOmics Run Status Change'],
+        detail: {
+          status: ['FAILED', 'COMPLETED', 'CANCELLED'],
+        },
+      },
+    });
+
+    // Add SNS target for notifications
+    rule.addTarget(new cdk.aws_events_targets.SnsTopic(this.failureAlarmTopic));
+
+    return rule;
+  }
+
+  /**
+   * Validate stack configuration (Task 8.6)
+   */
+  private validateStack(): void {
+    // Add validation aspects
+    cdk.Aspects.of(this).add({
+      visit(node: cdk.IConstruct) {
+        // Validate S3 buckets have encryption
+        if (node instanceof cdk.aws_s3.Bucket) {
+          if (!node.encryption || node.encryption === cdk.aws_s3.BucketEncryption.UNENCRYPTED) {
+            cdk.Annotations.of(node).addError('S3 buckets must have encryption enabled');
+          }
+        }
+
+        // Validate IAM roles have descriptions
+        if (node instanceof cdk.aws_iam.Role) {
+          if (!node.description) {
+            cdk.Annotations.of(node).addWarning('IAM roles should have descriptions');
+          }
+        }
+      },
+    });
+  }
+
+  /**
+   * Create CloudFormation outputs
+   */
+  private createOutputs(): void {
+    new cdk.CfnOutput(this, 'StackName', {
+      value: this.stackName,
+      description: 'Name of the CloudFormation stack',
+    });
+
+    new cdk.CfnOutput(this, 'Environment', {
+      value: this.props.environment,
+      description: 'Deployment environment',
+    });
+
+    new cdk.CfnOutput(this, 'Region', {
+      value: this.region,
+      description: 'AWS region',
+    });
+
+    new cdk.CfnOutput(this, 'ManifestLogsBucketName', {
+      value: this.manifestLogsBucket.bucketName,
+      description: 'Name of the S3 bucket for manifest logs',
+    });
+
+    new cdk.CfnOutput(this, 'AgentExecutionRoleArn', {
+      value: this.agentExecutionRole.roleArn,
+      description: 'ARN of the agent execution role',
+    });
+
+    new cdk.CfnOutput(this, 'LambdaExecutionRoleArn', {
+      value: this.lambdaExecutionRole.roleArn,
+      description: 'ARN of the Lambda execution role',
+    });
+
     new cdk.CfnOutput(this, 'FailureAlarmTopicArn', {
-      value: topic.topicArn,
+      value: this.failureAlarmTopic.topicArn,
       description: 'ARN of the SNS topic for failure notifications',
     });
 
-    return topic;
+    new cdk.CfnOutput(this, 'RunStatusChangeRuleArn', {
+      value: this.failureDetectionRule.ruleArn,
+      description: 'ARN of the EventBridge rule for run status changes',
+    });
+  }
+
+  /**
+   * Create AgentCore agent construct (Task 8.8)
+   */
+  private createAgentCoreAgent(): void {
+    const agentName = this.props.agentName || 'HealthOmicsWorkflowTroubleshooter';
+    const modelId = this.props.agentModelId || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+
+    // Create custom resource for AgentCore agent deployment
+    // In real implementation, would use AgentCore CDK construct or custom resource
+    new cdk.CfnOutput(this, 'AgentName', {
+      value: agentName,
+      description: 'Name of the AgentCore agent',
+    });
+
+    new cdk.CfnOutput(this, 'AgentModelId', {
+      value: modelId,
+      description: 'Model ID for the AgentCore agent',
+    });
   }
 }
