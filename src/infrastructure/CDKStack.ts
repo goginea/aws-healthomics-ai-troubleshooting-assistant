@@ -370,20 +370,76 @@ export class HealthOmicsAITroubleshooterStack extends cdk.Stack {
   /**
    * Create AgentCore agent construct (Task 8.8)
    */
-  private createAgentCoreAgent(): void {
+  private createAgentCoreAgent(): cdk.aws_bedrock.CfnAgent {
     const agentName = this.props.agentName || 'HealthOmicsWorkflowTroubleshooter';
     const modelId = this.props.agentModelId || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
 
-    // Create custom resource for AgentCore agent deployment
-    // In real implementation, would use AgentCore CDK construct or custom resource
-    new cdk.CfnOutput(this, 'AgentName', {
-      value: agentName,
-      description: 'Name of the AgentCore agent',
+    // Create the Bedrock Agent
+    const agent = new cdk.aws_bedrock.CfnAgent(this, 'BioinformaticsAgent', {
+      agentName: agentName,
+      agentResourceRoleArn: this.agentExecutionRole.roleArn,
+      foundationModel: modelId,
+      instruction: this.getAgentInstruction(),
+      description: 'Specialized bioinformatics troubleshooting agent for AWS HealthOmics workflows',
+      idleSessionTtlInSeconds: 600, // 10 minutes
+      // Note: Action groups and knowledge bases would be configured here
+      // For now, creating basic agent that can be enhanced later
     });
 
-    new cdk.CfnOutput(this, 'AgentModelId', {
-      value: modelId,
-      description: 'Model ID for the AgentCore agent',
+    // Create agent alias for stable endpoint
+    const agentAlias = new cdk.aws_bedrock.CfnAgentAlias(this, 'AgentAlias', {
+      agentId: agent.attrAgentId,
+      agentAliasName: 'production',
+      description: 'Production alias for the bioinformatics agent',
     });
+
+    // Output agent ID and alias ID
+    new cdk.CfnOutput(this, 'AgentId', {
+      value: agent.attrAgentId,
+      description: 'Bedrock Agent ID - use this for HEALTHOMICS_AGENT_ID environment variable',
+      exportName: `${this.stackName}-AgentId`,
+    });
+
+    new cdk.CfnOutput(this, 'AgentAliasId', {
+      value: agentAlias.attrAgentAliasId,
+      description: 'Bedrock Agent Alias ID',
+      exportName: `${this.stackName}-AgentAliasId`,
+    });
+
+    new cdk.CfnOutput(this, 'AgentArn', {
+      value: agent.attrAgentArn,
+      description: 'Bedrock Agent ARN',
+    });
+
+    return agent;
+  }
+
+  /**
+   * Get agent instruction (system prompt)
+   */
+  private getAgentInstruction(): string {
+    return `You are a specialized bioinformatics troubleshooting assistant for AWS HealthOmics genomic workflows.
+
+Your expertise includes:
+- Genomics workflows: WGS (Whole Genome Sequencing), WES (Whole Exome Sequencing), RNA-Seq, variant calling
+- Bioinformatics tools: GATK, BWA-MEM2, Samtools, Picard, bcftools
+- AWS HealthOmics service and workflow execution
+- Common failure patterns in genomic pipelines
+- Resource optimization for computational genomics
+
+When troubleshooting workflow failures:
+1. Identify the workflow type and affected tasks
+2. Analyze error messages with genomics context
+3. Check resource utilization (CPU, memory, disk)
+4. Investigate IAM permissions and S3 access
+5. Provide specific, actionable recommendations with parameter values
+
+Always provide:
+- Root cause analysis with confidence level
+- Bioinformatics-specific context (not generic AWS advice)
+- Specific parameter values to fix issues
+- References to workflow definition files when relevant
+
+Be concise, technical, and focus on actionable solutions.`;
   }
 }

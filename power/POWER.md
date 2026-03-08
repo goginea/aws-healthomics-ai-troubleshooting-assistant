@@ -151,7 +151,7 @@ Understanding what's already available helps you appreciate this Power's orchest
 
 **AWS Credentials:**
 
-Before running the setup wizard, ensure AWS credentials are configured in Kiro. You have several options:
+Before deploying the CDK stack, ensure AWS credentials are configured. You have several options:
 
 1. **AWS CLI Configuration** (Recommended):
 
@@ -159,7 +159,7 @@ Before running the setup wizard, ensure AWS credentials are configured in Kiro. 
    aws configure
    ```
 
-   This creates `~/.aws/credentials` and `~/.aws/config` files that Kiro will use.
+   This creates `~/.aws/credentials` and `~/.aws/config` files that CDK will use.
 
 2. **Environment Variables**:
 
@@ -173,8 +173,6 @@ Before running the setup wizard, ensure AWS credentials are configured in Kiro. 
    ```bash
    aws sso login --profile your-profile
    ```
-
-The setup wizard will validate your credentials in the first step and guide you if they're missing or invalid.
 
 **Required Kiro Powers:**
 These Powers must be installed (you'll be prompted during installation):
@@ -228,11 +226,17 @@ These Powers must be installed (you'll be prompted during installation):
 
 4. **Configure Agent Connection:**
 
-   After CDK deployment completes, you'll see the agent ID in the stack outputs. Configure it:
+   After CDK deployment completes, get the agent ID from the stack outputs:
 
    ```bash
-   # Set environment variable for the MCP server
-   export HEALTHOMICS_AGENT_ID=your-agent-id-from-cdk-output
+   # The CDK output will show:
+   # Outputs:
+   # HealthOmicsAITroubleshooterStack.AgentId = abcd1234
+   # HealthOmicsAITroubleshooterStack.AgentAliasId = TSTALIASID
+
+   # Set environment variable
+   export HEALTHOMICS_AGENT_ID=abcd1234  # Use the actual agent ID from output
+   export HEALTHOMICS_AGENT_ALIAS_ID=TSTALIASID  # Optional, defaults to TSTALIASID
    ```
 
    Or provide it directly when querying (see next step).
