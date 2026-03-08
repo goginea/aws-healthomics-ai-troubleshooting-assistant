@@ -168,11 +168,11 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Implement search interface for testing knowledge retrieval
     - Validate that custom documents are properly indexed
     - _Requirements: 18.8_
-  - [-] 6.9 Implement knowledge base versioning
+  - [x] 6.9 Implement knowledge base versioning
     - Support knowledge base snapshots
     - Implement rollback to previous versions
     - _Requirements: 18.9_
-  - [ ] 6.10 Create knowledge base management UI
+  - [-] 6.10 Create knowledge base management UI
     - Build UI for adding/removing knowledge sources
     - Show indexing status and document counts
     - Provide search interface for testing
