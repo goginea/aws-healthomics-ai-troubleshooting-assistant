@@ -1,0 +1,119 @@
+From Pipeline Failure to Root Cause in Minutes
+
+**Using Kiro's AWS Observability Power and HealthOmics Power to Investigate and Resolve Genomic Workflow Failures Directly in Your IDE**
+
+*Author: Avinash Gogineni, ESL TAM – AWS HCLS*
+
+*Date: March 2026*
+
+*Audience: Bioinformatics Engineers, Genomics Platform Teams, AWS Blog Readers*
+
+---
+
+## Introduction
+
+Genomic sequencing pipelines are mission-critical. When a variant calling workflow fails at 2 AM — hours before a clinical reporting deadline — every minute of downtime carries real consequences for patients and diagnostic teams alike. Traditionally, a bioinformatician would pivot between the AWS Console, CloudWatch Logs Insights, and scattered runbooks to piece together what went wrong. That process could take hours.
+
+Kiro changes this entirely.
+
+With the AWS HealthOmics Power and the AWS Observability Power installed in Kiro, a developer can open a single IDE session and immediately begin a natural language conversation with their infrastructure. Ask Kiro why a workflow run failed, and it queries CloudWatch manifest logs, surfaces the exact task that errored, and identifies the root cause — whether it's a misconfigured ECR image URI, an IAM permission boundary, or a resource exhaustion event on a specific run task. No tab-switching. No manual log parsing. No waiting for a dashboard to refresh.
+
+The AWS Observability Power brings together CloudWatch metrics and alarms, Application Signals for distributed tracing, and CloudTrail for audit context — all accessible through Kiro's AI agent interface. The HealthOmics Power adds deep workflow-specific intelligence: understanding run states, task-level resource utilization, and optimization recommendations. Together, they create a closed-loop troubleshooting experience where the IDE becomes the command center for both development and operations.
+
+For genomics teams running high-throughput sequencing pipelines — processing thousands of samples per day across WGS, WES, and targeted panel workflows — this shift from reactive firefighting to proactive, AI-assisted resolution is transformative. What once required a senior engineer and two hours of investigation now takes minutes, directly inside the tool where the pipeline was built.
+
+This is the future of bioinformatics operations: intelligent, IDE-native, and built for the pace of precision medicine.
+
+---
+
+## Technical Architecture
+
+The solution is built on three integrated layers: the Kiro IDE, AWS HealthOmics, and the AWS Observability stack. Together, they form a closed-loop, AI-assisted pipeline operations environment.
+
+### Architecture Overview
+
+### Layer 1: Kiro IDE with Installed Powers
+
+The developer's entry point is the **Kiro IDE**, with two Powers installed:
+
+- **AWS HealthOmics Power** (`github.com/kirodotdev/powers/tree/main/aws-healthomics`): Exposes HealthOmics APIs as MCP tools, enabling Kiro's AI agent to list workflow runs, inspect run states, retrieve task-level resource utilization from the Run Analyzer, and surface manifest log locations in S3.
+
+- **AWS Observability Power** (`kiro.dev/launch/powers/aws-observability`): Bundles four MCP servers — CloudWatch, Application Signals, CloudTrail, and AWS Documentation — giving the AI agent access to logs, metrics, alarms, distributed traces, and audit history through natural language queries.
+
+When a developer types *"Why did run omics-abc123 fail?"*, Kiro's AI agent orchestrates tool calls across both Powers to construct a complete answer.
+
+### Layer 2: AWS HealthOmics — Workflow Execution & Run Data
+
+AWS HealthOmics serves as the execution engine for genomic workflows (Nextflow, WDL, CWL). Key data surfaces consumed by the Kiro agent include:
+
+- **Run status and task-level details** via the HealthOmics Runs API — surfaces which specific task failed, its exit code, and the container image used.
+
+- **Run Analyzer output** — provides CPU, memory, and storage utilization per task, enabling identification of over- or under-provisioned resources.
+
+- **Manifest logs stored in S3** — contain detailed execution logs per workflow task, including stdout/stderr from containerized tool invocations (e.g., GATK HaplotypeCaller, BWA-MEM2).
+
+### Layer 3: AWS Observability Stack — Signals, Traces, and Audit
+
+The Observability Power connects Kiro to four complementary data sources:
+
+- **CloudWatch Logs & Metrics**: Captures HealthOmics workflow run events, Lambda invocation logs, and custom metrics such as samples-per-hour throughput.
+
+- **CloudWatch Alarms**: Pre-configured alarms on run failure rates, task retry counts, and queue depth trigger proactive alerts surfaced directly in the IDE.
+
+- **Application Signals**: Provides end-to-end distributed tracing across the full pipeline invocation chain — from the S3 event trigger through Lambda orchestration into HealthOmics — enabling identification of latency bottlenecks outside the workflow engine itself.
+
+- **CloudTrail**: Surfaces IAM permission errors, ECR pull failures, and S3 access denials that are common root causes of HealthOmics workflow failures but invisible within the HealthOmics console alone.
+
+---
+
+## Troubleshooting Workflow: A Step-by-Step Example
+
+Consider a WGS variant calling pipeline that fails during the `HaplotypeCaller` task:
+
+1. **Alert fires**: A CloudWatch Alarm on `HealthOmics/WorkflowRunFailed` triggers and is surfaced in Kiro via the Observability Power.
+
+2. **Developer queries Kiro**: *"What failed in the last HealthOmics run and why?"*
+
+3. **HealthOmics Power**: Retrieves the run ID, identifies the failed task (`HaplotypeCaller`), and fetches the manifest log location from S3.
+
+4. **CloudWatch MCP**: Queries the manifest log for the task's stderr output — surfaces an `OutOfMemoryError` with the container's memory limit.
+
+5. **Run Analyzer data**: Confirms the task was allocated 16 GiB but required 28 GiB based on the input BAM file size.
+
+6. **Kiro AI agent synthesizes**: *"Task HaplotypeCaller failed due to memory exhaustion. The run was configured with 16 GiB; Run Analyzer recommends 32 GiB for this input size. Update the workflow memory parameter and re-run."*
+
+7. **Developer applies the fix**: Updates the workflow definition file — already open in Kiro — and re-submits the run.
+
+**Total time from alert to resolution: under 10 minutes, without leaving the IDE.**
+
+---
+
+## Prerequisites & Setup
+
+To replicate this architecture, you will need:
+
+- **Kiro IDE** installed (kiro.dev)
+
+- **AWS HealthOmics Power** installed from the Kiro Powers marketplace
+
+- **AWS Observability Power** installed from kiro.dev/launch/powers/aws-observability
+
+- An **AWS HealthOmics private workflow** with CloudWatch logging enabled (`logLevel: ALL` recommended for troubleshooting)
+
+- **IAM permissions** for the Kiro session role: `omics:GetRun`, `omics:ListRunTasks`, `logs:StartQuery`, `cloudtrail:LookupEvents`, `xray:GetTraceSummaries`
+
+- An **S3 bucket** configured as the HealthOmics run output location, with manifest logs enabled
+
+---
+
+## Conclusion
+
+The combination of Kiro's AWS HealthOmics Power and AWS Observability Power represents a fundamental shift in how genomics engineering teams operate production pipelines. By bringing CloudWatch logs, Run Analyzer insights, distributed traces, and audit history into a single AI-assisted IDE session, teams can compress hours of reactive troubleshooting into minutes of conversational investigation.
+
+For organizations running clinical-grade genomic pipelines — where pipeline reliability directly impacts patient outcomes and reporting SLAs — this architecture offers both operational resilience and a dramatically improved developer experience.
+
+The sample code and Kiro Power configurations referenced in this post are available at:
+
+- `github.com/kirodotdev/powers/tree/main/aws-healthomics`
+
+- `aws-samples/sample-enhanced-monitoring-and-observability-for-aws-healthomics-workflows`
