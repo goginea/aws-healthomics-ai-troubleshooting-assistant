@@ -233,40 +233,40 @@ This **revised implementation plan** reflects an **orchestration-first approach*
     - Deploy knowledge base as part of stack
     - _Requirements: 15.3_
 
-- [ ] 9. Implement Setup Wizard
-  - [ ] 9.1 Create wizard UI framework
+- [-] 9. Implement Setup Wizard
+  - [x] 9.1 Create wizard UI framework
     - Implement step-by-step wizard interface in Kiro IDE
     - Create navigation between setup steps
     - Implement progress tracking
     - _Requirements: 16.2, 16.3_
-  - [ ] 9.2 Implement AWS credentials validation
+  - [x] 9.2 Implement AWS credentials validation
     - Validate AWS credentials before proceeding
     - Test access to required AWS services
     - Provide clear error messages for credential issues
     - _Requirements: 16.6_
-  - [ ] 9.3 Implement configuration collection
+  - [x] 9.3 Implement configuration collection
     - Collect AWS region selection
     - Collect S3 bucket configuration
     - Collect notification preferences
     - Persist configuration across sessions
     - _Requirements: 16.3, 16.9_
-  - [ ] 9.4 Implement one-click CDK deployment
+  - [x] 9.4 Implement one-click CDK deployment
     - Integrate CDK deployment manager with wizard
     - Show deployment progress in real-time
     - Handle deployment errors gracefully
     - _Requirements: 16.4_
-  - [ ] 9.5 Implement one-click IAM policy generation
+  - [x] 9.5 Implement one-click IAM policy generation
     - Use IAM Policy Autopilot Power's tools
     - Show generated policies for user review
     - Deploy policies with user confirmation
     - _Requirements: 16.5_
-  - [ ] 9.6 Implement connectivity testing
+  - [x] 9.6 Implement connectivity testing
     - Test HealthOmics API access
     - Test CloudWatch, CloudTrail, X-Ray access
     - Test S3 bucket access
     - Test AgentCore agent access
     - _Requirements: 16.7_
-  - [ ] 9.7 Implement setup completion and quick start
+  - [x] 9.7 Implement setup completion and quick start
     - Provide example queries to try immediately
     - Link to documentation and tutorials
     - _Requirements: 16.8, 16.10_

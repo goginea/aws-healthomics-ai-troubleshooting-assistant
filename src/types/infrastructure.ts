@@ -1,13 +1,14 @@
 // Infrastructure and deployment type definitions
 
 export interface SystemConfiguration {
-  region: string;
-  s3BucketName: string;
-  agentName: string;
-  notificationPreferences: NotificationPreferences;
-  environment: 'dev' | 'staging' | 'production';
-  awsAccountId?: string;
+  awsRegion: string;
   awsProfile?: string;
+  awsAccountId?: string;
+  manifestLogsBucketName?: string;
+  notificationEmail?: string;
+  environment: 'dev' | 'staging' | 'production';
+  agentName?: string;
+  agentModelId?: string;
 }
 
 export interface NotificationPreferences {
@@ -33,8 +34,8 @@ export interface DeployedResource {
 
 export interface ValidationResult {
   valid: boolean;
-  errors: ValidationError[];
-  warnings: ValidationWarning[];
+  errors: string[];
+  warnings: string[];
 }
 
 export interface ValidationError {
@@ -54,7 +55,6 @@ export interface ConnectivityTest {
   cloudTrailAccess: boolean;
   s3Access: boolean;
   agentAccess: boolean;
-  bedrockAccess: boolean;
   errors: string[];
 }
 
