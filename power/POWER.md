@@ -147,7 +147,7 @@ Understanding what's already available helps you appreciate this Power's orchest
   - CloudTrail
   - X-Ray / Application Signals
   - S3 (for manifest logs)
-- Node.js >= 18.0.0 (for development)
+- Node.js >= 20.0.0 (required for AWS SDK v3 and CDK deployment)
 
 **AWS Credentials:**
 
@@ -203,13 +203,15 @@ These Powers must be installed (you'll be prompted during installation):
 
 3. **Deploy AWS Infrastructure:**
 
-   The Power includes CDK infrastructure that must be deployed to your AWS account:
+   The Power includes CDK infrastructure that must be deployed to your AWS account.
+
+   Since you installed globally, navigate to the global npm modules directory:
 
    ```bash
-   # Navigate to the package directory
-   cd node_modules/healthomics-ai-troubleshooter
+   # Find the package location
+   cd $(npm root -g)/healthomics-ai-troubleshooter
 
-   # Deploy CDK stack
+   # Deploy the CDK stack
    npx cdk deploy \
      --context environment=production \
      --context notificationEmail=your-email@example.com \
