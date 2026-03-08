@@ -25,6 +25,7 @@ import { SharePointConnector } from "./connectors/SharePointConnector";
 import { ConfluenceConnector } from "./connectors/ConfluenceConnector";
 import { FileSystemConnector } from "./connectors/FileSystemConnector";
 import { S3Connector } from "./connectors/S3Connector";
+import { HistoricalDataProcessor } from "./HistoricalDataProcessor";
 
 /**
  * Interface for managing custom knowledge bases
@@ -79,6 +80,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   private confluenceConnector: ConfluenceConnector;
   private fileSystemConnector: FileSystemConnector;
   private s3Connector: S3Connector;
+  private historicalDataProcessor: HistoricalDataProcessor;
 
   constructor() {
     // Initialize with default configuration
@@ -93,6 +95,7 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
     this.confluenceConnector = new ConfluenceConnector();
     this.fileSystemConnector = new FileSystemConnector();
     this.s3Connector = new S3Connector();
+    this.historicalDataProcessor = new HistoricalDataProcessor();
   }
 
   /**
@@ -267,8 +270,39 @@ export class KnowledgeBaseManager implements IKnowledgeBaseManager {
   async ingestHistoricalData(
     data: HistoricalTroubleshootingData[]
   ): Promise<IngestionResult> {
-    // Placeholder - will be implemented in Task 6.5
-    throw new Error("Historical data ingestion not yet implemented");
+    try {
+      // Validate data
+      const validation = this.historicalDataProcessor.validateData(data);
+      if (!validation.valid) {
+        return {
+          success: false,
+          documentsProcessed: 0,
+          documentsFailed: data.length,
+          errors: validation.errors,
+        };
+      }
+
+      // Transform to documents
+      const documents = await this.historicalDataProcessor.transformToDocuments(
+        data
+      );
+
+      // Extract patterns for future use
+      const patterns = this.historicalDataProcessor.extractPatterns(data);
+
+      return {
+        success: true,
+        documentsProcessed: documents.length,
+        documentsFailed: 0,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        documentsProcessed: 0,
+        documentsFailed: data.length,
+        errors: [error instanceof Error ? error.message : String(error)],
+      };
+    }
   }
 
   /**
