@@ -6,4 +6,4 @@ export * from './powers';
 export * from './orchestration';
 // export * from './infrastructure';
 // export * from './setup';
-// export * from './knowledge';
+export * from './knowledge';
