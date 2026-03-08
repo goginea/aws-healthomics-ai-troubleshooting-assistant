@@ -115,13 +115,14 @@ Understanding what's already available helps you appreciate this Power's orchest
 - Automated IAM policy generation
 - One-click CDK deployment
 
-## Available MCP Servers
+## Available MCP Tools
 
-**This Power provides its own MCP server** for setup and management:
+**This Power provides MCP tools for**:
 
-- **healthomics-ai-troubleshooter** - Setup wizard, infrastructure deployment, knowledge base management, and agent queries
+- **query_agent** - Ask the bioinformatics agent questions about workflow failures (requires agent to be deployed first)
+- **add_knowledge_source** - Add custom knowledge sources (SharePoint, Confluence, S3, file systems)
 
-**This Power also orchestrates existing Powers' MCP servers**:
+**Note:** Infrastructure deployment (CDK stack with AgentCore agent) must be done via `cdk deploy` command as shown in the Installation section. The MCP tools are for interacting with the deployed agent, not for deployment itself.
 
 - **aws-healthomics** (awslabs.aws-healthomics-mcp-server)
 - **aws-observability** (awslabs.cloudwatch-mcp-server, awslabs.cloudwatch-applicationsignals-mcp-server, awslabs.cloudtrail-mcp-server)
@@ -129,7 +130,7 @@ Understanding what's already available helps you appreciate this Power's orchest
 - **iam-policy-autopilot-power** (iam-policy-autopilot-mcp)
 - **aws-infrastructure-as-code** (awslabs.aws-iac-mcp-server)
 
-**Note:** The MCP server is automatically configured when you install the Power. No manual npm installation required for basic usage. Advanced users can still install via npm for programmatic access.
+**This Power orchestrates existing Powers' MCP servers**:
 
 ## Onboarding
 
@@ -194,48 +195,42 @@ These Powers must be installed (you'll be prompted during installation):
    - Click Add
    - When prompted, install required dependency Powers
 
-2. **Run Setup (via Kiro):**
+2. **Install the npm package (required for deployment):**
 
-   Use the single-shot setup tool (recommended):
-
-   ```
-   "Use the setup_complete tool from healthomics-ai-troubleshooter with region us-east-1"
+   ```bash
+   npm install -g healthomics-ai-troubleshooter
    ```
 
-   Or with full configuration:
+3. **Deploy AWS Infrastructure:**
 
+   The Power includes CDK infrastructure that must be deployed to your AWS account:
+
+   ```bash
+   # Navigate to the package directory
+   cd node_modules/healthomics-ai-troubleshooter
+
+   # Deploy CDK stack
+   npx cdk deploy \
+     --context environment=production \
+     --context notificationEmail=your-email@example.com \
+     --context manifestLogsBucketName=my-healthomics-logs
    ```
-   "Use setup_complete from healthomics-ai-troubleshooter with:
-   - region: us-east-1
-   - s3BucketName: my-healthomics-logs
-   - notificationEmail: myemail@example.com"
-   ```
 
-   The tool will:
-   - Validate AWS credentials
-   - Validate configuration
-   - Generate IAM policies
-   - Deploy CDK infrastructure
-   - Test connectivity
-   - Complete setup in one step
-
-3. **Follow Setup Wizard:**
-   - **Step 1: Credentials Validation** - Wizard checks for AWS credentials and guides you if missing
-   - **Step 2: Region Selection** - Configure AWS region (e.g., us-east-1)
-   - **Step 3: S3 Configuration** - Configure S3 bucket name for logs
-   - **Step 4: Notification Preferences** - Set notification preferences
-   - **Step 5: IAM Policy Generation** - Automatically generate required IAM policies
-   - **Step 6: CDK Deployment** - Deploy infrastructure
-   - **Step 7: Connectivity Test** - Validate access to all AWS services
-
-4. **Automated Deployment:**
-   - Wizard automatically deploys CDK infrastructure:
-     - AgentCore bioinformatics agent
-     - IAM roles and policies
-     - CloudWatch alarms
-     - EventBridge rules
-     - S3 buckets with lifecycle policies
+   This deploys:
+   - AgentCore bioinformatics agent to AWS Bedrock
+   - IAM roles and policies
+   - CloudWatch alarms for proactive failure detection
+   - EventBridge rules for workflow status events
+   - S3 buckets with lifecycle policies
    - Deployment takes 5-10 minutes
+
+4. **Verify Deployment:**
+
+   After CDK deployment completes, verify the agent is accessible:
+
+   ```
+   "Use query_agent from healthomics-ai-troubleshooter with query: test connection"
+   ```
 
 5. **Start Using:**
    - Ask natural language questions about your workflows
